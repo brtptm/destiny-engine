@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "pnpm --parallel --filter ./server --filter ./client dev",
     "build": "pnpm --filter ./client build",
+    "build:demo": "node scripts/build-demo-site.mjs",
     "start": "pnpm --filter ./server start",
     "seed": "pnpm --filter ./server seed"
   }

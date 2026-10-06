@@ -165,7 +165,7 @@ function GetHelp() {
                 </ul>
               ) : <p className="text-sm text-ink-2 mt-2">No milestones move — only this week’s actions change.</p>}
               {a.preview.lockedWeeks > 0 && (
-                <p className="text-sm text-ink-3 mt-3">Weeks 1–{a.preview.lockedWeeks} stay exactly as you did them. Only the weeks ahead are re-planned.</p>
+                <p className="text-sm text-ink-3 mt-3">{a.preview.lockedWeeks === 1 ? 'Week 1 stays exactly as you did it.' : `Weeks 1–${a.preview.lockedWeeks} stay exactly as you did them.`} Only the weeks ahead are re-planned.</p>
               )}
             </div>
           )}

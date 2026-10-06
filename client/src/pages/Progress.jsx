@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { api, useDashboard } from '../lib/api.js';
-import { inr, inrShort, monthLabel } from '../lib/format.js';
+import { inr, inrShort, monthLabel, plural } from '../lib/format.js';
 import { IncomeChart, SavingsChart } from '../components/Charts.jsx';
 import { ProgressRing, MilestoneCard, Spinner, ErrorNote } from '../components/ui.jsx';
 
@@ -37,8 +37,8 @@ export default function Progress() {
           </dl>
           {stats.runway && (
             <p className="mt-4 text-sm text-ink-2">
-              Runway: <span className="num text-ink">{stats.runway.monthsNoIncome} months</span> on {inr(stats.runway.liquid)} with no income
-              {stats.runway.monthsWithDreamIncome == null ? ' — and your dream income already covers your costs.' : <>, <span className="num text-ink">{stats.runway.monthsWithDreamIncome > 36 ? 'over 3 years' : `${stats.runway.monthsWithDreamIncome} months`}</span> counting the {inr(stats.runway.dreamIncome30)} you earned on the side in the last 30 days.</>}
+              Runway: <span className="num text-ink">{plural(stats.runway.monthsNoIncome, 'month')}</span> on {inr(stats.runway.liquid)} with no income
+              {stats.runway.monthsWithDreamIncome == null ? ' — and your dream income already covers your costs.' : <>, <span className="num text-ink">{stats.runway.monthsWithDreamIncome > 36 ? 'over 3 years' : plural(stats.runway.monthsWithDreamIncome, 'month')}</span> counting the {inr(stats.runway.dreamIncome30)} you earned on the side in the last 30 days.</>}
             </p>
           )}
         </div>

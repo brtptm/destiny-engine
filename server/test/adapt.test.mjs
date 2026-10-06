@@ -70,3 +70,11 @@ test('logging dream income extends the runway', () => {
   assert.ok(after.monthsWithDreamIncome > before.monthsWithDreamIncome);
   assert.equal(after.monthsNoIncome, before.monthsNoIncome, 'income does not change the zero-income view');
 });
+
+test('no monthly surplus never produces absurd "months to fund" text', () => {
+  const p = { ...AARAV, financial: { monthlyIncome: 90000, monthlyExpenses: 90000, savings: 90000, debts: 0, investments: 90000 } };
+  const f = engine.analyzeDreamFeasibility(p, 'Become a UX designer', 'career');
+  const text = [f.components.financial.explanation, ...f.keyObstacles, ...f.recommendations].join(' ');
+  assert.doesNotMatch(text, /\d{4,} months/);
+  assert.doesNotMatch(text, /₹0\/month/);
+});

@@ -1,5 +1,9 @@
 import axios from 'axios';
 import { QueryClient, useQuery } from '@tanstack/react-query';
+import { createDemoApi } from '../demo/backend.js';
+
+/** The backend-free demo build (VITE_DEMO=1) runs the planning engine in the browser instead of calling the API. */
+export const DEMO = import.meta.env.VITE_DEMO === '1';
 
 const TOKEN_KEY = 'de-token';
 const store = {
@@ -17,7 +21,7 @@ http.interceptors.request.use((cfg) => {
 http.interceptors.response.use((r) => r.data, (err) => {
   if (err.response?.status === 401 && store.get()) {
     store.set(null);
-    if (!location.pathname.startsWith('/signin')) location.assign('/signin');
+    if (!location.pathname.endsWith('/signin')) location.assign(`${import.meta.env.BASE_URL}signin`);
   }
   const message = err.response?.data?.error || (err.code === 'ECONNABORTED' ? 'The request took too long. Try again.' : 'Can’t reach the server. Check that the API is running.');
   return Promise.reject(Object.assign(new Error(message), { status: err.response?.status }));
@@ -27,7 +31,7 @@ export const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, retry: 1, refetchOnWindowFocus: false } },
 });
 
-export const api = {
+const remoteApi = {
   health: () => http.get('/health'),
   register: (b) => http.post('/auth/register', b),
   login: (b) => http.post('/auth/login', b),
@@ -54,6 +58,8 @@ export const api = {
   issues: () => http.get('/coaching/issues'),
   requestAdvice: (b) => http.post('/coaching/request-advice', b),
 };
+
+export const api = DEMO ? createDemoApi({ get: store.get, set: store.set }) : remoteApi;
 
 export const useDashboard = () => useQuery({ queryKey: ['dashboard'], queryFn: api.dashboard, enabled: auth.signedIn() });
 export const useHealth = () => useQuery({ queryKey: ['health'], queryFn: api.health, staleTime: Infinity });

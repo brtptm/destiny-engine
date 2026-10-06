@@ -83,8 +83,8 @@ export default function DreamInput() {
       <section className="mt-16" aria-labelledby="tpl-h">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 id="tpl-h" className="text-xl">Browse {data?.total || 50} dreams people already reached</h2>
-            <p className="text-sm text-ink-3 mt-1">Each comes with a sample roadmap, common obstacles and a success story.</p>
+            <h2 id="tpl-h" className="text-xl">Browse {data?.total || 50} dream templates</h2>
+            <p className="text-sm text-ink-3 mt-1">Each comes with a sample roadmap, common obstacles and an illustrative story.</p>
           </div>
           <label className="relative w-full sm:w-72">
             <span className="sr-only">Search templates</span>

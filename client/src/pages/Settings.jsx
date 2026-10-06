@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { FiDownload, FiEdit3, FiStar, FiLogOut, FiTrash2 } from 'react-icons/fi';
-import { api, auth, useDashboard, useHealth } from '../lib/api.js';
+import { api, auth, useDashboard, useHealth, DEMO } from '../lib/api.js';
 import { useTheme } from '../lib/theme.js';
 import { useSignOut } from '../components/Shell.jsx';
 import { Spinner, ErrorNote } from '../components/ui.jsx';
@@ -109,7 +109,7 @@ export default function Settings() {
 
       <section className="panel p-5 sm:p-7 mt-6">
         <h2 className="text-lg">Your data</h2>
-        <p className="text-sm text-ink-2 mt-2">Everything is stored in this app’s SQLite database. {health?.ai?.enabled ? `Plans are personalised by Claude (${health.ai.model}); your profile is sent to the Claude API only when generating plans.` : 'AI personalisation is off — plans come from the built-in engine and never leave this server.'}</p>
+        <p className="text-sm text-ink-2 mt-2">{DEMO ? 'This demo keeps everything in your browser’s local storage — nothing is sent anywhere. Plans come from the built-in planning engine.' : <>Everything is stored in this app’s SQLite database. {health?.ai?.enabled ? `Plans are personalised by Claude (${health.ai.model}); your profile is sent to the Claude API only when generating plans.` : 'AI personalisation is off — plans come from the built-in engine and never leave this server.'}</>}</p>
         <button className="btn btn-ghost btn-sm mt-4" onClick={exportData}><FiDownload /> Export my data (JSON)</button>
       </section>
 

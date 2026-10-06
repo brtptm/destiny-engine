@@ -31,6 +31,16 @@ pnpm build && pnpm start   # serves the built client + API on :4000
 
 `pnpm seed` resets the demo account. `pnpm --filter ./server test` runs the server tests (adaptive re-planning, feasibility re-score, runway).
 
+## Backend-free demo (`demo` branch)
+
+`pnpm build:demo` builds a static site in `./site` that needs no server:
+
+- `index.html`: the full app, built with `VITE_DEMO=1`. `client/src/demo/backend.js` implements every API route in the browser on top of the same planning engine, progress maths and demo journey as the server (imported from `server/src`), and keeps accounts and data in `localStorage`. The AI tier is the built-in engine.
+- `slides.html`: the pitch deck (`slide.html` redirects to it), with a button back to the app.
+- `404.html`: a copy of the app, so deep links like `/today` work on GitHub Pages.
+
+Sign in with **Explore a live demo** (or `demo@destiny.app` / `dream-big-2026`), or create an account; a bar at the top links to the slides and resets Aarav's demo. Pushing the `demo` branch runs `.github/workflows/pages.yml`, which builds with `VITE_BASE=/<repo>/` and deploys to GitHub Pages. Preview locally with `VITE_BASE=/ pnpm build:demo` and any static server.
+
 ## How the AI works
 
 Every AI function (`server/src/ai/index.js`) first computes a **grounded baseline** with the deterministic engine (`engine.js`): financial health, runway, feasibility scores, timeline, projections, all from the user's real numbers. If Claude is configured, it gets the profile plus that baseline and returns personalised JSON, which is **validated field by field and merged** over the baseline. Any failure (no key, rate limit, refusal, bad JSON) falls back to the baseline, so the UI never breaks.

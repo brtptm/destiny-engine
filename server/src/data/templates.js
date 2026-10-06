@@ -54,6 +54,10 @@ const ROWS = [
   ['travel-world', 'Travel the world', 'wealth', 'Save and plan a 6-month trip around the world', 14, 'medium', 'A couple travelled 14 countries on a ₹12L budget.'],
 ];
 
+// Templates are browsed before we know the person, so personal placeholders read generically.
+const GENERIC = { job: 'current', skill: 'core skill', skill2: 'second skill', city: 'your city', place: 'your new city', target: 'target role', dream: 'your dream' };
+const generic = (t) => (t || '').replace(/\{(\w+)\}/g, (_, k) => GENERIC[k] ?? '');
+
 export const TEMPLATES = ROWS.map(([id, title, archetype, dream, months, difficulty, story]) => {
   const a = ARCHETYPES[archetype];
   return {
@@ -66,7 +70,7 @@ export const TEMPLATES = ROWS.map(([id, title, archetype, dream, months, difficu
     timelineVariations: { fast: Math.max(3, Math.round(months * 0.7)), typical: months, steady: Math.round(months * 1.4) },
     difficulty,
     phases: a.phases.map((p) => p.name),
-    obstacles: a.risks.map(([o, , m]) => ({ obstacle: o, solution: m })),
+    obstacles: a.risks.map(([o, , m]) => ({ obstacle: generic(o), solution: generic(m) })),
     successStory: { ...STORIES[archetype], outcome: story },
   };
 });

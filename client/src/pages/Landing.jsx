@@ -2,20 +2,20 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { FiCheck, FiClock, FiMap, FiActivity, FiMessageCircle, FiRefreshCw, FiPieChart, FiCompass } from 'react-icons/fi';
-import { api, auth } from '../lib/api.js';
+import { api, auth, DEMO } from '../lib/api.js';
 import Constellation from '../components/Constellation.jsx';
 import Cosmos from '../components/three/Cosmos.jsx';
 import { Logo, ErrorNote } from '../components/ui.jsx';
 
+// Mirrors what the engine plans for the demo persona: 7 months, moving day in month 6.
 const SAMPLE = [
   { month: 1, phase: 'Foundation', title: 'First clients' },
-  { month: 2, phase: 'Foundation', title: '₹1L side income', milestone: true },
-  { month: 3, phase: 'Growth', title: 'Notice served' },
-  { month: 4, phase: 'Growth', title: 'Final prep', milestone: true },
-  { month: 5, phase: 'Transition', title: 'Move to Goa' },
-  { month: 6, phase: 'Transition', title: 'Settle in', milestone: true },
-  { month: 7, phase: 'Optimise', title: 'Scale' },
-  { month: 8, phase: 'Optimise', title: '₹1.5L/month', milestone: true },
+  { month: 2, phase: 'Foundation', title: 'First location-independent income', milestone: true },
+  { month: 3, phase: 'Growth', title: 'Retainers' },
+  { month: 4, phase: 'Growth', title: 'Side income matches salary', milestone: true },
+  { month: 5, phase: 'Transition', title: 'Notice served' },
+  { month: 6, phase: 'Transition', title: 'Moving day in Goa', milestone: true },
+  { month: 7, phase: 'Optimise', title: '₹2L/month target', milestone: true },
 ];
 
 const STEPS = [
@@ -79,7 +79,7 @@ export default function Landing() {
               <button onClick={tryDemo} disabled={busy} className="btn btn-ghost glass">{busy ? 'Opening demo…' : 'Explore a live demo'}</button>
             </div>
             <div className="mt-4 max-w-md"><ErrorNote error={error} /></div>
-            <p className="mt-6 text-sm text-ink-3">Free for the hackathon. Your data stays on your server.</p>
+            <p className="mt-6 text-sm text-ink-3">Free for the hackathon. {DEMO ? 'This demo keeps your data in your browser.' : 'Your data stays on your server.'}</p>
           </div>
         </section>
       </div>
@@ -89,7 +89,7 @@ export default function Landing() {
         <section className="relative z-10 max-w-[1180px] mx-auto px-4 sm:px-8 -mt-20 pb-16 grid lg:grid-cols-[1fr_1.15fr] gap-10 items-center">
           <div className="lg:pr-6">
             <h2 className="text-2xl sm:text-3xl max-w-[18ch]">One dream, one week at a time</h2>
-            <p className="text-ink-2 mt-4 max-w-[46ch]">Aarav wants to leave Delhi for Goa with his family. Destiny Engine scored it 96% feasible, split it into four phases, and handed him seven concrete actions for this week.</p>
+            <p className="text-ink-2 mt-4 max-w-[46ch]">Aarav wants to leave Delhi for Goa with his family. Destiny Engine scored it 93% feasible, split it into four phases, and handed him seven concrete actions for this week.</p>
           </div>
           <div className="panel glass p-5 sm:p-6 min-w-0 float shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)]">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -98,8 +98,8 @@ export default function Landing() {
                 <div className="font-semibold">Move to Goa, freelance, live by the beach</div>
               </div>
               <div className="text-right">
-                <div className="num text-3xl" style={{ color: 'var(--sea)' }}>96%</div>
-                <div className="text-xs text-ink-3">feasible · 8 months</div>
+                <div className="num text-3xl" style={{ color: 'var(--sea)' }}>93%</div>
+                <div className="text-xs text-ink-3">feasible · 7 months</div>
               </div>
             </div>
             <div className="mt-4 -mx-2">
@@ -198,7 +198,7 @@ export default function Landing() {
           <div className="flex gap-5">
             <Link to="/signup" className="hover:text-ink">Create account</Link>
             <Link to="/signin" className="hover:text-ink">Sign in</Link>
-            <a href="/api/health" className="hover:text-ink">API status</a>
+            {DEMO ? <a href={`${import.meta.env.BASE_URL}slides.html`} className="hover:text-ink">Pitch slides</a> : <a href="/api/health" className="hover:text-ink">API status</a>}
           </div>
           <span>Built with React, Node.js, SQLite and Claude.</span>
         </div>

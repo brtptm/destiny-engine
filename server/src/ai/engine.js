@@ -203,7 +203,8 @@ export function analyzeDreamFeasibility(raw, dream, archetypeKey) {
   const ctx = ctxFor(p, dream);
 
   const obstacles = [];
-  if (gap > 0) obstacles.push(`A funding gap of ${inr(gap)} — about ${Math.ceil(monthsToFund)} months of focused saving.`);
+  const noSurplus = surplus * 0.8 < 1000; // nothing left over each month yet, so "months to fund" is meaningless
+  if (gap > 0) obstacles.push(noSurplus ? `A funding gap of ${inr(gap)} — and no monthly surplus yet to close it.` : `A funding gap of ${inr(gap)} — about ${Math.ceil(monthsToFund)} months of focused saving.`);
   if (skills < 65) obstacles.push(`Skills gap for this dream: ${a.skillsNeeded.slice(0, 2).join(' and ')}.`);
   if (disruptive && dependants >= 2) obstacles.push(`${dependants} family members need to be on board with the change.`);
   if (hours < 1.5) obstacles.push(`Limited time (${hours}h/day) will stretch the timeline.`);
@@ -220,13 +221,13 @@ export function analyzeDreamFeasibility(raw, dream, archetypeKey) {
   if (!successFactors.length) successFactors.push('A clear plan with weekly checkpoints — consistency beats intensity.');
 
   const recommendations = [
-    gap > 0 ? `Save ${inr(Math.min(gap / Math.max(recommended - 1, 1), surplus))}/month into a dedicated dream fund.` : required > 0 ? 'Your funding is in place — protect it in a separate account.' : 'Money isn’t the constraint here — consistency is. Protect your daily time block.',
+    gap > 0 && noSurplus ? 'Free up a monthly surplus first: trim your three largest expenses or add a small side income.' : gap > 0 ? `Save ${inr(Math.min(gap / Math.max(recommended - 1, 1), surplus))}/month into a dedicated dream fund.` : required > 0 ? 'Your funding is in place — protect it in a separate account.' : 'Money isn’t the constraint here — consistency is. Protect your daily time block.',
     `Spend your ${hours}h/day on the critical actions first; skip "helpful" ones in busy weeks.`,
     `Phase 1 (${a.phases[0].name}): ${fill(a.phases[0].goal, ctx)}.`,
   ];
 
   const explain = {
-    financial: required === 0 ? 'This dream needs time more than money, and your budget comfortably covers small costs like gear or coaching.' : gap > 0 ? `You need about ${inr(required)} and have ${inr(available)} available. Saving ${inr(surplus * 0.8)}/month closes the gap in ~${Math.ceil(monthsToFund)} months.` : `You already have the ${inr(required)} this dream needs. Your savings cover about ${(available / Math.max(exp, 1)).toFixed(1)} months of expenses, which carries the transition.`,
+    financial: required === 0 ? 'This dream needs time more than money, and your budget comfortably covers small costs like gear or coaching.' : gap > 0 && noSurplus ? `You need about ${inr(required)} and have ${inr(available)} available. You don't have a monthly surplus yet, so the plan starts by freeing one up.` : gap > 0 ? `You need about ${inr(required)} and have ${inr(available)} available. Saving ${inr(surplus * 0.8)}/month closes the gap in ~${Math.ceil(monthsToFund)} months.` : `You already have the ${inr(required)} this dream needs. Your savings cover about ${(available / Math.max(exp, 1)).toFixed(1)} months of expenses, which carries the transition.`,
     skills: `Your ${p.professional.skills.length ? `strengths in ${p.professional.skills.slice(0, 3).join(', ')}` : 'experience'} ${skills >= 75 ? 'map well onto' : 'partly cover'} what this dream needs: ${a.skillsNeeded.join(', ')}.`,
     family: dependants ? `${dependants} dependant${dependants > 1 ? 's' : ''} and ${p.personal.familySupport} family support. ${disruptive ? 'Involve them early — the plan includes a family session.' : 'Low disruption to family life.'}` : 'Few dependants gives you high flexibility.',
     location: key === 'relocation' ? `Remote capability of ${Math.round(p.professional.remoteCapability * 100)}% determines how portable your income is.` : `${metro ? 'A metro' : 'Your city'} offers ${metro ? 'a deep' : 'a reasonable'} market for this dream.`,
@@ -429,9 +430,12 @@ export function generateDailyCoaching({ profile, roadmap, stats, today, history 
   // Specific context the doc-style coach leads with: last week's result, runway, an active course correction.
   const lw = stats.lastWeek && stats.weekDone === 0 ? `You closed week ${stats.lastWeek.week} with ${stats.lastWeek.done}/${stats.lastWeek.total} actions done. ` : '';
   const rw = stats.runway;
+  const mo = (n) => `${n} month${n === 1 ? '' : 's'}`;
   const runwayLine = rw ? (rw.monthsWithDreamIncome == null
     ? ` Your dream income already covers your monthly costs — your ${inr(rw.liquid)} cushion stays untouched.`
-    : ` Runway check: ${inr(rw.liquid)} saved — ${rw.monthsNoIncome} months with no income, ${rw.monthsWithDreamIncome > 36 ? 'over 3 years' : `${rw.monthsWithDreamIncome} months`} counting what you earn on the side.`) : '';
+    : rw.dreamIncome30 > 0
+      ? ` Runway check: ${inr(rw.liquid)} saved — ${mo(rw.monthsNoIncome)} with no income, ${rw.monthsWithDreamIncome > 36 ? 'over 3 years' : mo(rw.monthsWithDreamIncome)} counting what you earn on the side.`
+      : ` Runway check: ${inr(rw.liquid)} saved covers ${mo(rw.monthsNoIncome)} of expenses.`) : '';
   if (stats.correction && !stats.justHitMilestone) {
     return {
       type: 'nudge', emoji: '🧭', relevanceScore: 0.95, resource: next?.resource || '',

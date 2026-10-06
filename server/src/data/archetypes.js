@@ -462,7 +462,7 @@ export const ARCHETYPES = {
     risks: [
       ['Course-hopping without building', 'high', 'Ship a project every 3–4 weeks; projects beat certificates.'],
       ['Salary dip in the new field', 'medium', 'Target hybrid roles that value your past {job} experience.'],
-      ['Low response rate from applications', 'high', 'Shift effort to referrals and community; they convert 5–10× better.'],
+      ['Low response rate from applications', 'high', 'Shift effort to referrals and community, where warm introductions get far more replies.'],
       ['Time fatigue from learning after work', 'medium', 'Protect a fixed daily block and take one rest day.'],
     ],
     resources: {

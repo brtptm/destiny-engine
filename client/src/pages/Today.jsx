@@ -29,7 +29,7 @@ export default function Today() {
     if (!m || !data?.user?.settings?.pushNotifications || !('Notification' in window) || Notification.permission !== 'granted') return;
     try {
       if (localStorage.getItem('de-notified') === m.date) return;
-      new Notification('Destiny Engine', { body: m.message, icon: '/star.svg' });
+      new Notification('Destiny Engine', { body: m.message, icon: `${import.meta.env.BASE_URL}star.svg` });
       localStorage.setItem('de-notified', m.date);
     } catch {}
   }, [daily.data, data?.user?.settings?.pushNotifications]);
@@ -121,12 +121,13 @@ export default function Today() {
           {stats.runway && (
             <div className="panel p-5">
               <div className="text-sm text-ink-3">Runway if you went all-in today</div>
-              <div className="num text-2xl mt-1">{stats.runway.monthsNoIncome} months</div>
+              <div className="num text-2xl mt-1">{plural(stats.runway.monthsNoIncome, 'month')}</div>
               <p className="text-sm text-ink-3 mt-1">{inrShort(stats.runway.liquid)} saved, with no income at all</p>
               <p className="text-sm mt-2" style={{ color: 'var(--sea)' }}>
-                {stats.runway.monthsWithDreamIncome == null
+                {!stats.runway.dreamIncome30 ? 'Log side income to see how far it stretches this'
+                  : stats.runway.monthsWithDreamIncome == null
                   ? 'Your dream income already covers your monthly costs'
-                  : `${stats.runway.monthsWithDreamIncome > 36 ? 'Over 3 years' : `${stats.runway.monthsWithDreamIncome} months`} counting your side income`}
+                  : `${stats.runway.monthsWithDreamIncome > 36 ? 'Over 3 years' : plural(stats.runway.monthsWithDreamIncome, 'month')} counting your side income`}
               </p>
             </div>
           )}

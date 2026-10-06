@@ -1,10 +1,11 @@
-# Publishes the pitch deck (demo/slides.html) to GitHub Pages as the site index.
-name: Deploy slides to Pages
+# Publishes the backend-free demo site to GitHub Pages:
+#   /             → the full app (VITE_DEMO=1: planning engine in the browser, data in localStorage)
+#   /slides.html  → the pitch deck (/slide.html redirects there)
+name: Deploy demo site to Pages
 
 on:
   push:
-    branches: [main]
-    paths: ['demo/**', 'client/public/star.svg', '.github/workflows/pages.yml']
+    branches: [demo]
   workflow_dispatch:
 
 permissions:
@@ -24,13 +25,20 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Assemble site
-        run: |
-          mkdir _site
-          cp -r demo/assets _site/assets
-          cp client/public/star.svg _site/star.svg
-          sed 's#\.\./client/public/star\.svg#star.svg#' demo/slides.html > _site/index.html
+      - uses: pnpm/action-setup@v4 # version from package.json "packageManager"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      # The demo only needs the client's dependencies; it imports the server's pure planning code directly.
+      - run: pnpm install --frozen-lockfile --filter ./client
+      - name: Build demo site
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+        run: node scripts/build-demo-site.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
       - id: deployment
         uses: actions/deploy-pages@v4
