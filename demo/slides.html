@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Destiny Engine — Pitch</title>
+  <link rel="icon" href="../client/public/star.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reset.css" integrity="sha384-eEwBkZrOoy1kAZn00sDVAezj2h5GAr6zv/XHy9KFt+7ios1iEkSMZObfrISpChg5" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reveal.css" integrity="sha384-rKClnwfQQ2b7LYSOAhRvm5m4LS7QKciQTAXBpVvr30y6oGB+ZBBXlpDnvFqlv5Eu" crossorigin="anonymous" />
+  <style>
+    :root {
+      --bg: #09090b; --surface: #121214; --surface-2: #1a1a1d; --line: #27272b;
+      --ink: #f2f0eb; --ink-2: #b5b1a9; --ink-3: #85827b;
+      --gold: #e9bf6b; --gold-2: #f3cf88; --sea: #4fd1b5; --rose: #ff6b81; --violet: #a29de0;
+      --display: 'Unbounded', ui-sans-serif, system-ui, sans-serif;
+      --sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+    }
+    html, body { background: var(--bg); color: var(--ink); }
+    #bg { position: fixed; inset: 0; z-index: 0; display: block; width: 100vw; height: 100vh; }
+    .vignette { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(1200px 700px at 50% 50%, transparent 40%, rgba(9,9,11,.75) 100%); }
+    .reveal-viewport { background: transparent; }
+    .reveal { z-index: 1; font-family: var(--sans); font-size: 30px; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section { height: 100%; }
+    .reveal h1, .reveal h2, .reveal h3 { font-family: var(--display); color: var(--ink); letter-spacing: -0.015em; line-height: 1.08; margin: 0; text-transform: none; }
+    .reveal h1 { font-size: 104px; font-weight: 600; }
+    .reveal h2 { font-size: 64px; font-weight: 600; }
+    .reveal h3 { font-size: 30px; font-weight: 500; }
+    .reveal p { margin: 0; line-height: 1.5; }
+    .reveal ul, .reveal ol { padding: 0; list-style: none; }
+    .muted { color: var(--ink-2); } .faint { color: var(--ink-3); } .gold { color: var(--gold); } .sea { color: var(--sea); }
+    .lede { font-size: 34px; color: var(--ink-2); max-width: 30ch; margin-top: 28px !important; }
+    .kicker { font-size: 22px; color: var(--gold); font-weight: 600; margin-bottom: 22px !important; }
+    .num { font-family: var(--display); font-weight: 500; letter-spacing: -0.03em; }
+    .stack { display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 0 40px; }
+    .split { display: grid; grid-template-columns: 0.9fr 1.25fr; gap: 64px; align-items: center; height: 100%; padding: 0 20px; }
+    .split.even { grid-template-columns: 1fr 1fr; }
+    .glass { background: rgba(18,18,20,.72); backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%);
+      border: 1px solid var(--line); border-radius: 22px; }
+    .card { padding: 28px 30px; }
+    .rule { height: 1px; background: var(--line); margin: 26px 0; }
+
+    /* Title */
+    .title-star { width: 92px; height: 92px; margin-bottom: 36px; filter: drop-shadow(0 0 30px rgba(233,191,107,.55)); }
+    .title h1 { font-size: 132px; }
+    .tag { font-size: 44px; color: var(--ink); margin-top: 26px !important; font-family: var(--display); font-weight: 400; max-width: 30ch; line-height: 1.2; }
+    .meta-row { display: flex; gap: 14px; margin-top: 54px; flex-wrap: wrap; }
+    .pill { border: 1px solid var(--line); border-radius: 999px; padding: 10px 20px; font-size: 20px; color: var(--ink-2); background: rgba(18,18,20,.6); }
+
+    /* Problem */
+    .big-quote { font-family: var(--display); font-size: 84px; font-weight: 600; line-height: 1.08; max-width: 18ch; }
+    .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 64px; }
+    .three .card h3 { font-size: 26px; margin-bottom: 12px; }
+    .three .card p { font-size: 22px; color: var(--ink-2); }
+    .ix { font-family: var(--display); color: var(--rose); font-size: 22px; margin-bottom: 14px; display: block; }
+
+    /* Translation flow */
+    .flow { display: grid; grid-template-columns: 1fr auto 1.2fr auto 1fr; gap: 26px; align-items: center; margin-top: 60px; }
+    .flow .node { padding: 30px; text-align: left; }
+    .flow .node .label { font-size: 18px; color: var(--ink-3); margin-bottom: 8px; }
+    .flow .node .val { font-size: 26px; line-height: 1.35; }
+    .arrow { width: 70px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold)); position: relative; }
+    .arrow::after { content: ''; position: absolute; right: -2px; top: -5px; border: 6px solid transparent; border-left: 10px solid var(--gold); }
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .chip { font-size: 18px; border-radius: 999px; padding: 6px 14px; background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--line); }
+
+    /* Persona */
+    .persona-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 36px; margin-top: 30px; font-size: 24px; }
+    .persona-grid dt { color: var(--ink-3); font-size: 18px; }
+    .persona-grid dd { margin: 4px 0 0; }
+    .score { font-size: 200px; line-height: .9; color: var(--sea); }
+    .score small { font-size: .38em; }
+
+    /* Steps */
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; margin-top: 70px; }
+    .step { padding-top: 26px; border-top: 1px solid var(--line); position: relative; }
+    .step::before { content: ''; position: absolute; top: -5px; left: 0; width: 9px; height: 9px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 18px var(--gold); }
+    .step .n { font-family: var(--display); color: var(--gold); font-size: 30px; }
+    .step h3 { font-size: 30px; margin: 14px 0 12px; }
+    .step p { color: var(--ink-2); font-size: 22px; }
+
+    /* Screenshot frames: tilt in, settle when the slide is presented */
+    .shot { perspective: 1800px; }
+    .shot .frame { border-radius: 18px; overflow: hidden; border: 1px solid rgba(233,191,107,.28);
+      box-shadow: 0 50px 120px -40px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.03), 0 0 80px -20px rgba(233,191,107,.25);
+      transform: rotateY(-14deg) rotateX(6deg) translateY(30px) scale(.94); opacity: .2;
+      transition: transform 1.3s cubic-bezier(.2,.8,.2,1), opacity 1s ease; }
+    .reveal .present .shot .frame { transform: rotateY(-5deg) rotateX(2deg); opacity: 1; animation: drift 9s ease-in-out 1.3s infinite; }
+    @keyframes drift { 0%,100% { transform: rotateY(-5deg) rotateX(2deg) translateY(0); } 50% { transform: rotateY(-3deg) rotateX(1deg) translateY(-12px); } }
+    .shot img { display: block; width: 100%; }
+    .points { margin-top: 30px; display: grid; gap: 18px; }
+    .points li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; font-size: 25px; color: var(--ink-2); }
+    .points li::before { content: '✦'; color: var(--gold); }
+    .points b { color: var(--ink); font-weight: 600; }
+
+    /* Use cases */
+    .uc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 48px; }
+    .uc { padding: 22px; min-height: 170px; display: flex; flex-direction: column; }
+    .uc .e { font-size: 34px; }
+    .uc h3 { font-size: 21px; margin: 14px 0 8px; }
+    .uc p { font-size: 18px; color: var(--ink-3); line-height: 1.4; }
+
+    /* AI pipeline */
+    .pipe { display: grid; grid-template-columns: 1fr auto 1.15fr auto 1.15fr auto 1fr; gap: 18px; align-items: stretch; margin-top: 60px; }
+    .pipe .stage { padding: 26px; }
+    .pipe .stage .label { font-size: 17px; color: var(--ink-3); }
+    .pipe .stage h3 { font-size: 26px; margin: 10px 0 12px; }
+    .pipe .stage p { font-size: 19px; color: var(--ink-2); }
+    .pipe .arrow { align-self: center; width: 44px; }
+    .pipe .claude { border-color: rgba(233,191,107,.5); box-shadow: 0 0 60px -20px rgba(233,191,107,.45); }
+    .fallback { margin-top: 26px; font-size: 22px; color: var(--ink-2); display: flex; gap: 14px; align-items: center; }
+    .fallback .line { flex: 0 0 120px; height: 0; border-top: 2px dashed var(--ink-3); }
+
+    /* Stack */
+    .stack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 48px; }
+    .stack-grid .card h3 { font-size: 24px; color: var(--gold); margin-bottom: 14px; }
+    .stack-grid li { font-size: 21px; color: var(--ink-2); padding: 6px 0; }
+
+    /* Market */
+    .market { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 50px; }
+    .market .card h3 { font-size: 27px; margin: 10px 0 12px; }
+    .market .card p { font-size: 20px; color: var(--ink-2); }
+    .market .who { font-size: 17px; color: var(--gold); font-weight: 600; }
+
+    /* Next */
+    .next { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 60px; margin-top: 50px; }
+    .next li { font-size: 26px; padding: 18px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 60px 1fr; }
+    .next li span:first-child { font-family: var(--display); color: var(--gold); }
+    .next li em { display: block; font-style: normal; font-size: 19px; color: var(--ink-3); margin-top: 6px; }
+
+    /* Demo */
+    .demo-list { counter-reset: d; display: grid; gap: 16px; margin-top: 40px; }
+    .demo-list li { counter-increment: d; display: grid; grid-template-columns: 56px 1fr auto; align-items: baseline; font-size: 26px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+    .demo-list li::before { content: counter(d); font-family: var(--display); color: var(--gold); }
+    .demo-list .t { font-size: 18px; color: var(--ink-3); }
+    .url { font-family: var(--display); font-size: 28px; color: var(--gold); margin-top: 34px !important; }
+
+    .closing h2 { font-size: 92px; max-width: 16ch; }
+
+    .reveal .controls { color: var(--gold); }
+    .reveal .progress { color: var(--gold); height: 3px; }
+    .reveal .slide-number { background: transparent; color: var(--ink-3); font-family: var(--sans); font-size: 16px; right: 28px; bottom: 22px; }
+    .hint { position: fixed; left: 28px; bottom: 20px; z-index: 2; font: 15px var(--sans); color: var(--ink-3); }
+    .reveal .fragment.rise { opacity: 0; transform: translateY(18px); transition: all .6s cubic-bezier(.2,.8,.2,1); }
+    .reveal .fragment.rise.visible { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) { .shot .frame, .reveal .present .shot .frame { animation: none; transition: none; transform: none; opacity: 1; } }
+  </style>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="vignette"></div>
+  <div class="hint">→ next · S speaker notes · O overview · F fullscreen</div>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 1 · Title -->
+      <section class="title" data-wp="0">
+        <div class="stack">
+          <svg class="title-star" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4l3.2 8.8L28 16l-8.8 3.2L16 28l-3.2-8.8L4 16l8.8-3.2z" fill="#e9bf6b"/></svg>
+          <h1>Destiny Engine</h1>
+          <p class="tag">Turn your dream into a map you can walk.</p>
+          <div class="meta-row">
+            <span class="pill">AI life-transformation coach</span>
+            <span class="pill">React · Node.js · SQLite · three.js</span>
+            <span class="pill">Powered by Claude</span>
+          </div>
+        </div>
+        <aside class="notes">
+          Hi, we built Destiny Engine. One line: you tell it where your life is today and where you want it to be, and it turns that dream into a month-by-month map with a coach that walks it with you. The stars in the background are the actual metaphor of the product — every month of your plan is a star. Let's travel through it.
+        </aside>
+      </section>
+
+      <!-- 2 · Problem -->
+      <section data-wp="1">
+        <div class="stack">
+          <p class="kicker">The problem</p>
+          <p class="big-quote">Everyone has a dream. Almost no one has a plan for this Tuesday.</p>
+          <div class="three">
+            <div class="glass card fragment rise"><span class="ix">01</span><h3>Advice is generic</h3><p>“Start freelancing” ignores your EMI, your two kids and the 2 hours you actually have.</p></div>
+            <div class="glass card fragment rise"><span class="ix">02</span><h3>Nobody notices drift</h3><p>Plans live in a notes app. When week three slips, nothing tells you — so the dream quietly dies.</p></div>
+            <div class="glass card fragment rise"><span class="ix">03</span><h3>Life breaks plans</h3><p>One obstacle — no clients, a worried spouse, a surprise bill — and a static plan is useless.</p></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Ask the room: who has a dream they've been "planning" for more than a year? The issue is rarely motivation. Three things fail: advice isn't about YOUR life, nobody notices when you drift, and plans can't bend when life happens. Click through the three cards.
+        </aside>
+      </section>
+
+      <!-- 3 · Insight -->
+      <section data-wp="2">
+        <div class="stack">
+          <p class="kicker">Our insight</p>
+          <h2>The gap isn’t motivation.<br/>It’s translation.</h2>
+          <div class="flow">
+            <div class="glass node fragment rise"><div class="label">A dream</div><div class="val">“Move to Goa, work freelance, live by the beach.”</div></div>
+            <div class="arrow fragment rise"></div>
+            <div class="glass node fragment rise"><div class="label">Grounded in your real life</div>
+              <div class="chips"><span class="chip">₹ income &amp; expenses</span><span class="chip">savings runway</span><span class="chip">skills</span><span class="chip">family</span><span class="chip">hours / day</span><span class="chip">location</span></div></div>
+            <div class="arrow fragment rise"></div>
+            <div class="glass node fragment rise"><div class="label">This week</div><div class="val">7 specific actions, with time, tools and a “done when”.</div></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Destiny Engine is a translator. On the left, a dream in plain words. In the middle, everything that makes your situation unique — money, runway, skills, family, time. On the right, what you should actually do on Monday. The whole product is this translation, done honestly and kept up to date.
+        </aside>
+      </section>
+
+      <!-- 4 · Persona -->
+      <section data-wp="3">
+        <div class="split even">
+          <div>
+            <p class="kicker">Meet Aarav</p>
+            <h2>32, Delhi.<br/>Wants the beach.</h2>
+            <dl class="persona-grid">
+              <div><dt>Work</dt><dd>Marketing manager, 8 yrs</dd></div>
+              <div><dt>Family</dt><dd>Married, kids 8 &amp; 6</dd></div>
+              <div><dt>Income</dt><dd>₹1.25L / month</dd></div>
+              <div><dt>Runway</dt><dd>₹4.5L saved + ₹20L invested</dd></div>
+              <div><dt>Time</dt><dd>2.5 hours a day</dd></div>
+              <div><dt>Remote-ready</dt><dd>95% of his work</dd></div>
+            </dl>
+          </div>
+          <div class="glass card" style="padding:48px">
+            <div class="faint" style="font-size:20px">Feasibility</div>
+            <div class="num score"><span class="count" data-to="96">0</span><small>%</small></div>
+            <div class="rule"></div>
+            <ul class="points" style="margin-top:0">
+              <li><span><b>8 months</b> · 4 phases · 196 actions</span></li>
+              <li><span><b>Month 2</b> — first location-independent income</span></li>
+              <li><span><b>Month 5</b> — moving day in Goa</span></li>
+              <li><span><b>Month 8</b> — ₹1.5L/month from the beach</span></li>
+            </ul>
+          </div>
+        </div>
+        <aside class="notes">
+          Our demo persona is the sample from the brief. Aarav has real constraints — two kids, a loan, limited time. Destiny Engine doesn't say "follow your passion"; it says 96% feasible, here's why, and here's the 8-month route with the moving day in month 5. This is the account we'll open live.
+        </aside>
+      </section>
+
+      <!-- 5 · How it works -->
+      <section data-wp="4">
+        <div class="stack">
+          <p class="kicker">How it works</p>
+          <h2>Four steps from “someday” to week one</h2>
+          <ol class="steps">
+            <li class="step fragment rise"><span class="n">1</span><h3>Map your life</h3><p>26–29 adaptive questions, one at a time. Skip anything — we estimate it.</p></li>
+            <li class="step fragment rise"><span class="n">2</span><h3>Name your dream</h3><p>In your own words, or from 50 dreams people already reached.</p></li>
+            <li class="step fragment rise"><span class="n">3</span><h3>See if it adds up</h3><p>Six honest tests: money, skills, family, location, market, time.</p></li>
+            <li class="step fragment rise"><span class="n">4</span><h3>Walk the roadmap</h3><p>Phases, months, weekly checklists, daily coaching and re-planning.</p></li>
+          </ol>
+        </div>
+        <aside class="notes">
+          Under 10 minutes from sign-up to a full roadmap. The questionnaire adapts — no kids, no school questions; no debt, no credit-score question. Every skip is inferred, so nobody is blocked.
+        </aside>
+      </section>
+
+      <!-- 6 · Feasibility -->
+      <section data-wp="5">
+        <div class="split">
+          <div>
+            <p class="kicker">Feasibility</p>
+            <h2>Honest before hopeful</h2>
+            <ul class="points">
+              <li><span><b>Six scored dimensions</b>, each explained with your own numbers</span></li>
+              <li><span><b>Funding gap</b> and months-to-close, from your real surplus</span></li>
+              <li><span><b>Named obstacles</b> and a matched success story</span></li>
+            </ul>
+          </div>
+          <div class="shot"><div class="frame"><img src="assets/feasibility.jpeg" alt="Feasibility report screen" /></div></div>
+        </div>
+        <aside class="notes">
+          This is the moment users trust it. It doesn't just say yes — it shows the funding gap, the skills gap, and what the family situation means. Even a 60% dream gets a path: the roadmap closes the gaps first.
+        </aside>
+      </section>
+
+      <!-- 7 · Roadmap -->
+      <section data-wp="6">
+        <div class="split">
+          <div>
+            <p class="kicker">The roadmap</p>
+            <h2>Your plan is a constellation</h2>
+            <ul class="points">
+              <li><span><b>One star per month</b>, milestones as bright stars</span></li>
+              <li><span><b>7 actions a week</b>: time, tools, “done when”</span></li>
+              <li><span><b>Income &amp; savings projection</b>, risks and resources</span></li>
+            </ul>
+          </div>
+          <div class="shot"><div class="frame"><img src="assets/roadmap.jpeg" alt="Roadmap screen" /></div></div>
+        </div>
+        <aside class="notes">
+          The gold line is how far you've travelled. Click any star to see that month's weeks. Every action has a time estimate, a resource and a success metric — no "work on your brand" vagueness.
+        </aside>
+      </section>
+
+      <!-- 8 · Coaching -->
+      <section data-wp="7">
+        <div class="split">
+          <div>
+            <p class="kicker">Daily coaching</p>
+            <h2>A coach that knows it’s week 6</h2>
+            <ul class="points">
+              <li><span><b>Six message types</b>: nudge, tip, opportunity, motivation, warning, celebration</span></li>
+              <li><span><b>Reads your pace</b> — warns when you slip, celebrates milestones</span></li>
+              <li><span><b>Check off today’s action</b>, close the week, unlock the next</span></li>
+            </ul>
+          </div>
+          <div class="shot"><div class="frame"><img src="assets/today.jpeg" alt="Today screen with daily coaching" /></div></div>
+        </div>
+        <aside class="notes">
+          The Today screen is the daily habit loop. The message is generated from live progress — completed actions, pace versus plan, income logged. Closing a week can unlock a milestone with a celebration.
+        </aside>
+      </section>
+
+      <!-- 9 · Adaptive -->
+      <section data-wp="8">
+        <div class="split">
+          <div>
+            <p class="kicker">Adaptive planning</p>
+            <h2>When life happens, the plan bends</h2>
+            <ul class="points">
+              <li><span><b>Describe the obstacle</b> in plain words</span></li>
+              <li><span><b>Get a diagnosis</b>, causes, fixes and pivots</span></li>
+              <li><span><b>One click re-plans</b> — <span class="gold">7 → 8 months</span>, new actions this week</span></li>
+            </ul>
+          </div>
+          <div class="shot"><div class="frame"><img src="assets/adapt.jpeg" alt="Course correction screen" /></div></div>
+        </div>
+        <aside class="notes">
+          This is our favourite feature. "I sent 25 pitches and got one reply." The coach diagnoses it, proposes four concrete actions, and shows the timeline impact before you accept. Completed weeks are preserved; only the future is re-planned.
+        </aside>
+      </section>
+
+      <!-- 10 · Use cases -->
+      <section data-wp="9">
+        <div class="stack">
+          <p class="kicker">Use cases</p>
+          <h2>Ten kinds of dreams. Fifty templates.</h2>
+          <div class="uc-grid">
+            <div class="glass uc fragment rise"><span class="e">🏝️</span><h3>Relocate</h3><p>Goa, the hills, or abroad</p></div>
+            <div class="glass uc fragment rise"><span class="e">🧭</span><h3>Go independent</h3><p>Quit the 9–5 safely</p></div>
+            <div class="glass uc fragment rise"><span class="e">🎥</span><h3>Become a creator</h3><p>YouTube, podcast, newsletter</p></div>
+            <div class="glass uc fragment rise"><span class="e">🚀</span><h3>Build a startup</h3><p>Validate before you build</p></div>
+            <div class="glass uc fragment rise"><span class="e">📈</span><h3>Financial freedom</h3><p>Debt-free, FIRE, first crore</p></div>
+            <div class="glass uc fragment rise"><span class="e">💼</span><h3>Change careers</h3><p>Into tech, PM, data, AI</p></div>
+            <div class="glass uc fragment rise"><span class="e">☕</span><h3>Start a business</h3><p>Café, D2C, cloud kitchen</p></div>
+            <div class="glass uc fragment rise"><span class="e">🎓</span><h3>Study abroad</h3><p>MS, MBA, scholarships</p></div>
+            <div class="glass uc fragment rise"><span class="e">🏃</span><h3>Transform health</h3><p>Marathon, −15 kg, EBC trek</p></div>
+            <div class="glass uc fragment rise"><span class="e">🏠</span><h3>Buy a home</h3><p>Down payment to keys</p></div>
+          </div>
+        </div>
+        <aside class="notes">
+          It's not a relocation app. Each archetype has its own phases, action library, risks and resources, and fifty templates sit on top — each with timeline variations, common obstacles and an anonymised success story.
+        </aside>
+      </section>
+
+      <!-- 11 · AI -->
+      <section data-wp="10">
+        <div class="stack">
+          <p class="kicker">How the AI works</p>
+          <h2>Grounded numbers. Personal words.</h2>
+          <div class="pipe">
+            <div class="glass stage fragment rise"><div class="label">Input</div><h3>Life profile + dream</h3><p>Money, skills, family, time, location</p></div>
+            <div class="arrow fragment rise"></div>
+            <div class="glass stage fragment rise"><div class="label">Planning engine</div><h3>Deterministic baseline</h3><p>Runway, scores, timeline, projections — computed, never invented</p></div>
+            <div class="arrow fragment rise"></div>
+            <div class="glass stage claude fragment rise"><div class="label">Claude Opus 5.5</div><h3>Personalise</h3><p>Analysis, month plans, coaching, diagnosis — as structured JSON</p></div>
+            <div class="arrow fragment rise"></div>
+            <div class="glass stage fragment rise"><div class="label">Guardrails</div><h3>Validate &amp; merge</h3><p>Field-by-field checks over the baseline</p></div>
+          </div>
+          <div class="fallback fragment rise"><span class="line"></span><span>No key, rate limit or bad output? The engine answers instantly — <b class="gold">the demo can’t break.</b></span></div>
+        </div>
+        <aside class="notes">
+          Important for judges: the LLM never invents your money. Numbers come from a deterministic engine; Claude adds judgement and language on top, and we validate every field before merging. Any failure falls back to the engine, so it even works offline. Streaming, effort levels per task, caching and rate limits are built in.
+        </aside>
+      </section>
+
+      <!-- 12 · Stack -->
+      <section data-wp="11">
+        <div class="stack">
+          <p class="kicker">Built in a hackathon, built to last</p>
+          <h2>The stack</h2>
+          <div class="stack-grid">
+            <div class="glass card fragment rise"><h3>Client</h3><ul><li>React 19 + Vite 8</li><li>Tailwind CSS 4</li><li>three.js / React Three Fiber</li><li>TanStack Query, Recharts</li><li>Lazy routes · 3D only where it’s used</li></ul></div>
+            <div class="glass card fragment rise"><h3>Server</h3><ul><li>Node 24 + Express 5</li><li>Built-in <code>node:sqlite</code> — zero native deps</li><li>JWT auth · rate limits · Helmet</li><li>25+ REST endpoints</li><li>Single-port production deploy</li></ul></div>
+            <div class="glass card fragment rise"><h3>AI</h3><ul><li>Claude <code>claude-opus-5-5</code></li><li>Streaming + per-task effort</li><li>Refusal fallback built in</li><li>Planning engine: 10 archetypes</li><li>Graceful offline mode</li></ul></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Mention it's a pnpm monorepo: pnpm install, pnpm dev and it runs. SQLite is Node's built-in module, so there are no native builds to fail on someone's laptop.
+        </aside>
+      </section>
+
+      <!-- 13 · Market -->
+      <section data-wp="12">
+        <div class="stack">
+          <p class="kicker">Who it’s for</p>
+          <h2>Where it goes next</h2>
+          <div class="market">
+            <div class="glass card fragment rise"><div class="who">Individuals</div><h3>Freemium coach</h3><p>Free feasibility and roadmap. Paid tier for AI-personalised months, daily coaching and unlimited re-plans.</p></div>
+            <div class="glass card fragment rise"><div class="who">Banks &amp; fintechs</div><h3>Goal-based finance</h3><p>Every dream has a savings plan inside it — a natural front door for SIPs, savings goals and loans.</p></div>
+            <div class="glass card fragment rise"><div class="who">Employers &amp; edtech</div><h3>Career mobility</h3><p>Internal career-switch roadmaps, learning paths tied to real outcomes, and wellbeing programmes.</p></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Proposed go-to-market. The fintech angle is the strongest: a dream roadmap already contains a month-by-month savings target, which maps directly to goal-based savings and investment products.
+        </aside>
+      </section>
+
+      <!-- 14 · Roadmap of the product -->
+      <section data-wp="13">
+        <div class="stack">
+          <p class="kicker">What’s next</p>
+          <h2>Our own next stars</h2>
+          <ol class="next">
+            <li class="fragment rise"><span>01</span><span>Auto-tracked income &amp; savings<em>Account Aggregator consent flows instead of manual logging</em></span></li>
+            <li class="fragment rise"><span>02</span><span>Coaching on WhatsApp<em>The daily nudge where people already are</em></span></li>
+            <li class="fragment rise"><span>03</span><span>Hindi &amp; regional languages<em>Dreams aren’t only written in English</em></span></li>
+            <li class="fragment rise"><span>04</span><span>Dream circles<em>Walk the same roadmap with people chasing the same dream</em></span></li>
+          </ol>
+        </div>
+        <aside class="notes">
+          Keep this short — four bullets, then go to the live demo.
+        </aside>
+      </section>
+
+      <!-- 15 · Demo -->
+      <section data-wp="14">
+        <div class="split even">
+          <div>
+            <p class="kicker">Live demo</p>
+            <h2>Let’s walk Aarav’s map</h2>
+            <p class="url">localhost:5173 → Explore a live demo</p>
+          </div>
+          <ol class="demo-list">
+            <li>Landing — the 3D constellation <span class="t">20s</span></li>
+            <li>Today — coach message, tick an action <span class="t">40s</span></li>
+            <li>Roadmap — click a future star <span class="t">40s</span></li>
+            <li>Progress — log ₹15,000, chart moves <span class="t">30s</span></li>
+            <li>Coach → Get help → apply re-plan <span class="t">60s</span></li>
+            <li>Close week 6 → celebration <span class="t">20s</span></li>
+          </ol>
+        </div>
+        <aside class="notes">
+          Switch to the browser. Full click-by-click script is in demo/PITCH.md. If the network is flaky, nothing changes — the built-in engine answers without Claude.
+        </aside>
+      </section>
+
+      <!-- 16 · Close -->
+      <section class="closing" data-wp="15">
+        <div class="stack">
+          <svg class="title-star" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4l3.2 8.8L28 16l-8.8 3.2L16 28l-3.2-8.8L4 16l8.8-3.2z" fill="#e9bf6b"/></svg>
+          <h2>Your first star is one week away.</h2>
+          <p class="lede">Destiny Engine — turn your dream into a map you can walk.</p>
+          <div class="meta-row"><span class="pill">Thank you · Questions?</span></div>
+        </div>
+        <aside class="notes">
+          Close on the line, pause, then take questions. Q&amp;A prep is in PITCH.md.
+        </aside>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reveal.js" integrity="sha384-UilXW7W77EPIY5TmQGBrjhBPcfX40NqGwuIC8DGs6OeGTCxKy36B+DiOXtfqgk9S" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/plugin/notes.js" integrity="sha384-XUVoTb/UbE06yoCUaqswCPKSUvPq3q4heijGsemnUSS/JEgW1lNnK0rKlNwjuz7O" crossorigin="anonymous"></script>
+  <script>
+    Reveal.initialize({
+      hash: true, width: 1600, height: 900, margin: 0.05, center: false,
+      controls: true, progress: true, slideNumber: 'c/t', transition: 'fade', transitionSpeed: 'slow',
+      backgroundTransition: 'none', plugins: [RevealNotes],
+    });
+
+    // Count-up for big numbers when their slide appears.
+    function countUp(root) {
+      root.querySelectorAll('.count').forEach((el) => {
+        const to = Number(el.dataset.to), start = performance.now();
+        const tick = (t) => { const p = Math.min(1, (t - start) / 1400); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(tick); };
+        requestAnimationFrame(tick);
+      });
+    }
+    Reveal.on('ready', (e) => countUp(e.currentSlide));
+    Reveal.on('slidechanged', (e) => countUp(e.currentSlide));
+  </script>
+
+  <script type="importmap">
+    {
+      "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js" },
+      "integrity": {
+        "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js": "sha384-EU5UWigB3OuXjAXooUegndJSqYber3YSJHDoMZs6rV96yY/ol/B4W8logw4CKWkA",
+        "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js": "sha384-mdKeCwPEcbDvzaxwhm+MVuLoMou+E7jQqrs4tmu/n8HBYPGI1kZt0MkJxlMR4zFM"
+      }
+    }
+  </script>
+  <!-- three.js background: the camera travels along a gold constellation, one waypoint per slide -->
+  <script type="module">
+    import * as THREE from 'three';
+
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const canvas = document.getElementById('bg');
+    let renderer;
+    try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); }
+    catch { canvas.remove(); throw new Error('WebGL unavailable'); }
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x09090b, 0.018);
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 400);
+
+    const GOLD = new THREE.Color('#e9bf6b');
+    const glow = (() => {
+      const c = document.createElement('canvas'); c.width = c.height = 128;
+      const g = c.getContext('2d'); const r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+      r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(.25, 'rgba(255,255,255,.5)'); r.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = r; g.fillRect(0, 0, 128, 128);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+    })();
+
+    // Starfield
+    const N = 4200, pos = new Float32Array(N * 3), col = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) {
+      pos.set([(Math.random() - .5) * 260, (Math.random() - .5) * 160, -Math.random() * 260 + 40], i * 3);
+      const c = Math.random() < .14 ? GOLD : new THREE.Color('#f2f0eb'); const d = .3 + Math.random() * .7;
+      col.set([c.r * d, c.g * d, c.b * d], i * 3);
+    }
+    const sg = new THREE.BufferGeometry();
+    sg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    sg.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    const stars = new THREE.Points(sg, new THREE.PointsMaterial({ size: .55, map: glow, vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    scene.add(stars);
+
+    // Constellation path: one node per slide, receding into depth
+    const SLIDES = document.querySelectorAll('.reveal .slides > section').length;
+    const nodes = [];
+    for (let i = 0; i < SLIDES; i++) nodes.push(new THREE.Vector3(Math.sin(i * .9) * 9 + (i % 2 ? 3 : -3), Math.cos(i * .7) * 4, -i * 16));
+    const curve = new THREE.CatmullRomCurve3(nodes);
+    const dashed = new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(600)), new THREE.LineDashedMaterial({ color: GOLD, dashSize: .5, gapSize: .7, transparent: true, opacity: .35 }));
+    dashed.computeLineDistances(); scene.add(dashed);
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 800, .05, 8, false), new THREE.MeshBasicMaterial({ color: GOLD }));
+    scene.add(tube);
+
+    const starShape = (r) => { const k = r * .3, s = new THREE.Shape(); [[0, r], [k, k], [r, 0], [k, -k], [0, -r], [-k, -k], [-r, 0], [-k, k]].forEach(([x, y], i) => i ? s.lineTo(x, y) : s.moveTo(x, y)); s.closePath(); return s; };
+    const starGeo = new THREE.ExtrudeGeometry(starShape(.9), { depth: .22, bevelEnabled: true, bevelThickness: .06, bevelSize: .05, bevelSegments: 2 }).center();
+    const lit = new THREE.MeshStandardMaterial({ color: GOLD, emissive: GOLD, emissiveIntensity: 1.1, metalness: .5, roughness: .3, toneMapped: false });
+    const dark = new THREE.MeshStandardMaterial({ color: 0x141417, metalness: .85, roughness: .25 });
+    const edgeMat = new THREE.LineBasicMaterial({ color: GOLD, transparent: true, opacity: .5 });
+    const starMeshes = nodes.map((p, i) => {
+      const g = new THREE.Group(); g.position.copy(p);
+      const m = new THREE.Mesh(starGeo, dark); g.add(m);
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(starGeo), edgeMat); g.add(e);
+      const h = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color: 0xf3cf88, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+      h.scale.setScalar(5); g.add(h);
+      g.userData = { m, e, h, phase: i * 1.7 };
+      scene.add(g); return g;
+    });
+
+    // Floating obsidian crystals
+    const crystals = [];
+    for (let i = 0; i < 26; i++) {
+      const geo = i % 2 ? new THREE.OctahedronGeometry(.6 + Math.random() * .9) : new THREE.IcosahedronGeometry(.5 + Math.random() * .8);
+      const g = new THREE.Group();
+      g.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0x0d0d10, metalness: .9, roughness: .18, flatShading: true })));
+      g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: GOLD, transparent: true, opacity: .45 })));
+      g.position.set((Math.random() - .5) * 60, (Math.random() - .5) * 30, -Math.random() * (SLIDES * 16) + 10);
+      g.userData = { spin: new THREE.Vector3(Math.random(), Math.random(), Math.random()).multiplyScalar(.3), phase: Math.random() * 6 };
+      scene.add(g); crystals.push(g);
+    }
+
+    scene.add(new THREE.AmbientLight(0xffffff, .35));
+    const key = new THREE.DirectionalLight(0xfff3dc, 1.4); key.position.set(5, 8, 10); scene.add(key);
+    const travelLight = new THREE.PointLight(0xe9bf6b, 40, 30); scene.add(travelLight);
+
+    // Camera rig: glide to the current slide's star
+    let target = 0, current = 0, pointerX = 0, pointerY = 0;
+    const camFor = (t) => { const p = curve.getPoint(Math.min(.999, t / (SLIDES - 1))); return { pos: new THREE.Vector3(p.x - 9.5, p.y + 0.6, p.z + 18), look: new THREE.Vector3(p.x - 9.5, p.y - 0.1, p.z - 10) }; };
+    Reveal.on('ready', (e) => { target = current = e.indexh; });
+    Reveal.on('slidechanged', (e) => { target = e.indexh; });
+    addEventListener('pointermove', (e) => { pointerX = e.clientX / innerWidth - .5; pointerY = e.clientY / innerHeight - .5; });
+
+    function resize() { renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); }
+    addEventListener('resize', resize); resize();
+
+    const clock = new THREE.Timer();
+    function frame(ts) {
+      clock.update(ts);
+      const dt = Math.min(clock.getDelta(), .05), t = clock.getElapsed();
+      current += (target - current) * (reduced ? 1 : Math.min(1, dt * 1.6));
+      const { pos: cp, look } = camFor(current);
+      camera.position.set(cp.x + pointerX * 2, cp.y - pointerY * 1.2, cp.z);
+      camera.lookAt(look.x, look.y, look.z);
+      travelLight.position.copy(look).add(new THREE.Vector3(0, 2, 4));
+
+      // Gold tube grows up to the current slide
+      const idx = tube.geometry.index.count;
+      tube.geometry.setDrawRange(0, Math.floor((idx * Math.min(1, current / (SLIDES - 1))) / 6) * 6);
+
+      starMeshes.forEach((g, i) => {
+        const on = i <= Math.round(current);
+        g.userData.m.material = on ? lit : dark;
+        g.userData.e.visible = !on;
+        const isCur = i === Math.round(current);
+        g.userData.h.material.opacity += ((on ? (isCur ? .75 + Math.sin(t * 2.4) * .2 : .35) : 0) - g.userData.h.material.opacity) * .08;
+        g.rotation.y = Math.sin(t * .6 + g.userData.phase) * .7;
+        g.position.y = nodes[i].y + Math.sin(t * 1.1 + g.userData.phase) * .35;
+      });
+      crystals.forEach((c) => {
+        c.rotation.x += c.userData.spin.x * dt; c.rotation.y += c.userData.spin.y * dt;
+        c.position.y += Math.sin(t * .8 + c.userData.phase) * .004;
+      });
+      stars.rotation.z = t * .004;
+      renderer.render(scene, camera);
+      if (!reduced) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    if (reduced) Reveal.on('slidechanged', () => requestAnimationFrame(frame));
+  </script>
+</body>
+</html>
