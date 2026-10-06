@@ -1,0 +1,14 @@
+{
+  "name": "destiny-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered life transformation: profile → dream → feasibility → roadmap → daily coaching",
+  "packageManager": "pnpm@11.22.0",
+  "engines": { "node": ">=24", "pnpm": ">=10" },
+  "scripts": {
+    "dev": "pnpm --parallel --filter ./server --filter ./client dev",
+    "build": "pnpm --filter ./client build",
+    "start": "pnpm --filter ./server start",
+    "seed": "pnpm --filter ./server seed"
+  }
+}
