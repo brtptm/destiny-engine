@@ -6,6 +6,7 @@ import { api, useDashboard } from '../lib/api.js';
 import { inr, feasibilityTone, confidenceLabel } from '../lib/format.js';
 import { ScoreBar, Spinner, ErrorNote, SourceNote } from '../components/ui.jsx';
 import { starPath } from '../components/Constellation.jsx';
+import Cosmos from '../components/three/Cosmos.jsx';
 
 const COMPONENTS = [['financial', 'Financial'], ['skills', 'Skills'], ['family', 'Family'], ['location', 'Location'], ['market', 'Market demand'], ['timeline', 'Timeline']];
 const GEN_STEPS = ['Laying out your phases', 'Writing weekly actions', 'Projecting income and savings', 'Mapping risks and resources'];
@@ -53,16 +54,14 @@ export default function Feasibility() {
 
   if (busy) {
     return (
-      <div className="grid place-items-center py-24 text-center" role="status">
-        <svg width="120" height="80" viewBox="0 0 120 80" aria-hidden="true">
-          <path d="M10,60 C35,60 35,25 60,25 C85,25 85,50 110,20" fill="none" stroke="var(--gold)" strokeWidth="2.5" className="draw-path" style={{ '--len': 160, animationIterationCount: 'infinite', animationDuration: '2.6s' }} />
-          <circle cx="10" cy="60" r="4" fill="var(--gold)" /><circle cx="60" cy="25" r="4" fill="var(--gold)" />
-          <path d={starPath(110, 20, 8)} fill="var(--gold)" className="halo" />
-        </svg>
-        <h1 className="text-2xl mt-8">Charting your roadmap</h1>
-        <ol className="mt-6 grid gap-2 text-ink-3">
-          {GEN_STEPS.map((s, i) => <li key={s} className={i <= step ? 'text-ink' : ''}>{i < step ? '✓ ' : i === step ? '… ' : ''}{s}</li>)}
-        </ol>
+      <div className="relative isolate overflow-hidden rounded-[22px] border border-line min-h-[70dvh] grid place-items-end text-center" role="status">
+        <Cosmos variant="compact" progress={step + 1} className="-z-10" />
+        <div className="w-full p-8 sm:p-12" style={{ background: 'linear-gradient(transparent, var(--bg) 55%)' }}>
+          <h1 className="text-2xl sm:text-3xl">Charting your roadmap</h1>
+          <ol className="mt-6 grid gap-2 text-ink-3">
+            {GEN_STEPS.map((s, i) => <li key={s} className={i <= step ? 'text-ink' : ''}>{i < step ? '✓ ' : i === step ? '… ' : ''}{s}</li>)}
+          </ol>
+        </div>
       </div>
     );
   }

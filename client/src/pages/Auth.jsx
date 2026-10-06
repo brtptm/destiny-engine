@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { api, auth } from '../lib/api.js';
 import { Logo, ErrorNote } from '../components/ui.jsx';
-import { starPath } from '../components/Constellation.jsx';
+import Cosmos from '../components/three/Cosmos.jsx';
 
 export default function Auth({ mode }) {
   const isSignup = mode === 'signup';
@@ -61,17 +61,10 @@ export default function Auth({ mode }) {
           </form>
         </div>
       </div>
-      <aside className="hidden lg:grid place-items-center border-l border-line p-12" aria-hidden="true">
-        <div className="max-w-sm">
-          <svg viewBox="0 0 320 220" className="w-full">
-            <path d="M20,180 C80,180 70,120 130,120 C190,120 170,60 230,60 C270,60 280,30 300,30" fill="none" stroke="var(--line)" strokeWidth="2" strokeDasharray="2 7" strokeLinecap="round" />
-            <path d="M20,180 C80,180 70,120 130,120 C190,120 170,60 230,60" fill="none" stroke="var(--gold)" strokeWidth="2.5" className="draw-path" style={{ '--len': 400 }} />
-            {[[20, 180, 6], [130, 120, 7]].map(([x, y, r]) => <circle key={x} cx={x} cy={y} r={r} fill="var(--gold)" />)}
-            <circle cx="230" cy="60" r="16" fill="var(--gold)" opacity=".18" className="halo" />
-            <circle cx="230" cy="60" r="7" fill="var(--gold)" />
-            <path d={starPath(300, 30, 14)} fill="none" stroke="var(--ink-3)" strokeWidth="1.5" />
-          </svg>
-          <p className="text-xl font-display mt-8 leading-snug">Every big change is a line of small, specific weeks.</p>
+      <aside className="hidden lg:block relative isolate overflow-hidden border-l border-line" aria-hidden="true">
+        <Cosmos variant="compact" className="-z-10" />
+        <div className="absolute inset-x-0 bottom-0 p-12 pt-32" style={{ background: 'linear-gradient(transparent, var(--bg))' }}>
+          <p className="text-xl font-display leading-snug max-w-sm">Every big change is a line of small, specific weeks.</p>
         </div>
       </aside>
     </div>

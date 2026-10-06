@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { FiCheck, FiClock, FiMap, FiActivity, FiMessageCircle, FiRefreshCw, FiPieChart, FiCompass } from 'react-icons/fi';
 import { api, auth } from '../lib/api.js';
 import Constellation from '../components/Constellation.jsx';
+import Cosmos from '../components/three/Cosmos.jsx';
 import { Logo, ErrorNote } from '../components/ui.jsx';
 
 const SAMPLE = [
@@ -49,34 +50,48 @@ export default function Landing() {
 
   return (
     <div className="sky min-h-dvh">
-      <header className="max-w-[1180px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
-        <Logo />
-        <nav className="flex items-center gap-2">
-          {signedIn
-            ? <Link to="/today" className="btn btn-ghost btn-sm">Open my roadmap</Link>
-            : <><Link to="/signin" className="btn btn-sm text-ink-2 hover:text-ink">Sign in</Link><Link to="/signup" className="btn btn-primary btn-sm">Start your journey</Link></>}
-        </nav>
-      </header>
+      <div className="relative isolate overflow-hidden">
+        <Cosmos variant="hero" className="-z-10" />
+        {/* Scrims keep the copy readable over the scene */}
+        <div className="absolute inset-0 -z-10 pointer-events-none hidden lg:block" style={{ background: 'linear-gradient(90deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 78%, transparent) 34%, transparent 62%)' }} />
+        <div className="absolute inset-0 -z-10 pointer-events-none lg:hidden" style={{ background: 'color-mix(in srgb, var(--bg) 62%, transparent)' }} />
+        <div className="absolute inset-x-0 bottom-0 h-40 -z-10 pointer-events-none" style={{ background: 'linear-gradient(transparent, var(--bg))' }} />
 
-      <main>
-        {/* Hero */}
-        <section className="max-w-[1180px] mx-auto px-4 sm:px-8 pt-10 sm:pt-16 pb-16 grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
-          <div>
-            <h1 className="text-[2.4rem] leading-[1.08] sm:text-5xl lg:text-[3.2rem] font-semibold max-w-[17ch]">
+        <header className="max-w-[1180px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
+          <Logo />
+          <nav className="flex items-center gap-2">
+            {signedIn
+              ? <Link to="/today" className="btn btn-ghost btn-sm glass">Open my roadmap</Link>
+              : <><Link to="/signin" className="btn btn-sm text-ink-2 hover:text-ink">Sign in</Link><Link to="/signup" className="btn btn-primary btn-sm">Start your journey</Link></>}
+          </nav>
+        </header>
+
+        <section className="max-w-[1180px] mx-auto px-4 sm:px-8 min-h-[78dvh] lg:min-h-[680px] flex items-center pt-6 pb-28">
+          <div className="max-w-xl rise">
+            <h1 className="text-[2.4rem] leading-[1.06] sm:text-5xl lg:text-[3.6rem] font-semibold">
               Turn your dream into a map you can walk.
             </h1>
-            <p className="mt-6 text-lg text-ink-2 max-w-[52ch]">
+            <p className="mt-6 text-lg text-ink-2 max-w-[48ch]">
               Tell Destiny Engine where your life is today and where you want it to be. It checks the numbers, charts the route month by month, and coaches you every day until you arrive.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to={signedIn ? '/today' : '/signup'} className="btn btn-primary">Start your journey</Link>
-              <button onClick={tryDemo} disabled={busy} className="btn btn-ghost">{busy ? 'Opening demo…' : 'Explore a live demo'}</button>
+              <button onClick={tryDemo} disabled={busy} className="btn btn-ghost glass">{busy ? 'Opening demo…' : 'Explore a live demo'}</button>
             </div>
             <div className="mt-4 max-w-md"><ErrorNote error={error} /></div>
             <p className="mt-6 text-sm text-ink-3">Free for the hackathon. Your data stays on your server.</p>
           </div>
+        </section>
+      </div>
 
-          <div className="panel p-5 sm:p-6 min-w-0">
+      <main>
+        {/* Product preview, floating over the fold */}
+        <section className="relative z-10 max-w-[1180px] mx-auto px-4 sm:px-8 -mt-20 pb-16 grid lg:grid-cols-[1fr_1.15fr] gap-10 items-center">
+          <div className="lg:pr-6">
+            <h2 className="text-2xl sm:text-3xl max-w-[18ch]">One dream, one week at a time</h2>
+            <p className="text-ink-2 mt-4 max-w-[46ch]">Aarav wants to leave Delhi for Goa with his family. Destiny Engine scored it 96% feasible, split it into four phases, and handed him seven concrete actions for this week.</p>
+          </div>
+          <div className="panel glass p-5 sm:p-6 min-w-0 float shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)]">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <div>
                 <div className="text-sm text-ink-3">Aarav’s dream</div>

@@ -173,7 +173,7 @@ export function MilestoneCard({ milestone, achieved, startLabel }) {
 export function Celebration({ title, body, onClose }) {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const colors = ['#FFC857', '#3DD6C6', '#8A90E6', '#ffffff'];
+    const colors = ['#E9BF6B', '#F3CF88', '#4FD1B5', '#ffffff'];
     confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 }, colors, shapes: ['star', 'circle'] });
     const t = setTimeout(() => confetti({ particleCount: 80, spread: 120, origin: { y: 0.5 }, colors, shapes: ['star'] }), 450);
     return () => clearTimeout(t);

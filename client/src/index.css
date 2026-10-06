@@ -1,25 +1,27 @@
 @import 'tailwindcss';
 
-/* ---------- Tokens: night sky (dark, default) ---------- */
+/* ---------- Tokens: obsidian (dark, default) ---------- */
 :root {
   color-scheme: dark;
-  --bg: #0e1036;
-  --surface: #161949;
-  --surface-2: #1d2158;
-  --line: #2c3170;
-  --ink: #f2f3ff;
-  --ink-2: #b9bdeb;
-  --ink-3: #8489c4;
-  --gold: #ffc857;          /* stars, current position, primary action */
-  --gold-text: #ffc857;
-  --on-gold: #0e1036;
-  --sea: #3dd6c6;           /* on track / success */
-  --rose: #ff6f91;          /* behind / warning */
-  --violet: #8a90e6;        /* info / projection */
-  --chart-actual: #c4851f;
-  --chart-savings: #22a396;
-  --chart-plan: #7c83de;
-  --grid: #262a63;
+  --bg: #09090b;
+  --surface: #121214;
+  --surface-2: #1a1a1d;
+  --line: #27272b;
+  --ink: #f2f0eb;
+  --ink-2: #b5b1a9;
+  --ink-3: #85827b;
+  --gold: #e9bf6b;          /* champagne gold: stars, current position, primary action */
+  --gold-hover: #f3cf88;
+  --gold-text: #e9bf6b;
+  --on-gold: #0b0b0d;
+  --sea: #4fd1b5;           /* on track / success */
+  --rose: #ff6b81;          /* behind / warning */
+  --violet: #a29de0;        /* info / projection */
+  --chart-actual: #c08526;
+  --chart-savings: #1fa08c;
+  --chart-plan: #8781d2;
+  --grid: #1f1f23;
+  --glass: rgba(18, 18, 20, 0.72);
 }
 
 /* ---------- Light: dawn ---------- */
@@ -42,6 +44,8 @@
   --chart-savings: #0e8f84;
   --chart-plan: #5a61c9;
   --grid: #e3e5f4;
+  --gold-hover: #ffd47a;
+  --glass: rgba(255, 255, 255, 0.78);
 }
 
 @theme inline {
@@ -103,15 +107,16 @@ h3 { font-weight: 500; }
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(1px 1px at 12% 18%, #fff8 50%, transparent 51%),
-    radial-gradient(1px 1px at 72% 9%, #fff6 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 44% 32%, #ffc85799 50%, transparent 51%),
-    radial-gradient(1px 1px at 86% 41%, #fff5 50%, transparent 51%),
-    radial-gradient(1px 1px at 23% 64%, #fff4 50%, transparent 51%),
-    radial-gradient(1px 1px at 61% 77%, #fff5 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 92% 86%, #fff6 50%, transparent 51%),
-    radial-gradient(1px 1px at 5% 92%, #fff4 50%, transparent 51%),
-    radial-gradient(1200px 600px at 80% -10%, #2a2f86 0%, transparent 60%);
+    radial-gradient(1px 1px at 12% 18%, #fff6 50%, transparent 51%),
+    radial-gradient(1px 1px at 72% 9%, #fff5 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 44% 32%, #e9bf6b88 50%, transparent 51%),
+    radial-gradient(1px 1px at 86% 41%, #fff4 50%, transparent 51%),
+    radial-gradient(1px 1px at 23% 64%, #fff3 50%, transparent 51%),
+    radial-gradient(1px 1px at 61% 77%, #fff4 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 92% 86%, #fff5 50%, transparent 51%),
+    radial-gradient(1px 1px at 5% 92%, #fff3 50%, transparent 51%),
+    radial-gradient(900px 520px at 82% -12%, #e9bf6b1f 0%, transparent 62%),
+    radial-gradient(700px 500px at -10% 110%, #ffffff0a 0%, transparent 60%);
 }
 :root[data-theme='light'] .sky::before {
   background: radial-gradient(1000px 500px at 85% -15%, #ffe2a8 0%, transparent 60%);
@@ -131,7 +136,7 @@ h3 { font-weight: 500; }
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .btn-primary { background: var(--gold); color: var(--on-gold); }
-.btn-primary:hover:not(:disabled) { background: #ffd47a; }
+.btn-primary:hover:not(:disabled) { background: var(--gold-hover); }
 .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 .btn-ghost:hover:not(:disabled) { background: var(--surface-2); }
 .btn-sm { padding: 0.45rem 0.9rem; font-size: 0.85rem; }
@@ -162,6 +167,11 @@ h3 { font-weight: 500; }
 .draw-path { stroke-dasharray: var(--len, 1200); animation: draw 2.2s cubic-bezier(.6,.05,.25,1) both; }
 .halo { transform-box: fill-box; transform-origin: center; animation: twinkle 2.4s ease-in-out infinite; }
 .rise { animation: rise 0.35s ease both; }
+
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(0.0001deg); } 50% { transform: translateY(-10px) rotate(0.0001deg); } }
+.float { animation: float 7s ease-in-out infinite; will-change: transform; }
+.float-slow { animation: float 9s ease-in-out infinite; animation-delay: -3s; }
+.glass { background: var(--glass); backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%); }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 1s linear infinite; }

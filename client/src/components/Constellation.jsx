@@ -44,7 +44,7 @@ export default function Constellation({ months, startDate, progressMonths = 0, c
         <path d={d} fill="none" stroke="var(--line)" strokeWidth="2" strokeDasharray="2 7" strokeLinecap="round" />
         {travelledD && pts.length > 1 && travelled > 0 && (
           <path d={travelledD} fill="none" stroke="var(--gold)" strokeWidth="2.5" strokeLinecap="round"
-            pathLength={1} className={animate ? 'draw-path' : ''} style={{ '--len': 1 }} />
+            pathLength={1000} className={animate ? 'draw-path' : ''} style={{ '--len': 1000 }} />
         )}
         {pts.map((p, i) => {
           const done = p.month <= Math.floor(progressMonths);
