@@ -13,7 +13,15 @@ pnpm dev            # API on :4000, app on http://localhost:5173
 
 Click **Explore a live demo** on the landing page (or sign in as `demo@destiny.app` / `dream-big-2026`) to see a seeded journey: Aarav's "move to Goa" plan, five weeks in, with income logged and coaching history.
 
-To enable Claude, put `ANTHROPIC_API_KEY=...` in a root `.env` (see `.env.example`) and restart. No key? Everything still works on the built-in engine.
+**AI providers, picked automatically (check `GET /api/health` → `ai.provider`):**
+
+1. `api`: `ANTHROPIC_API_KEY` is set in a root `.env` (see `.env.example`), so the Claude API is used.
+2. `agent-sdk`: no key, but you're signed in to Claude Code on this machine. The server uses the **Claude Agent SDK** with your local login (e.g. a Pro/Max subscription). At startup it runs a tiny probe; calls are tool-less, single-turn and ignore your local Claude Code settings. Meant for local development and demos. A deployed product should use an API key.
+3. `engine`: neither is available, so the built-in planning engine answers everything instantly and offline.
+
+Force one with `AI_PROVIDER=api|agent-sdk|off`. Any failure at any tier falls back to the engine.
+
+Pitch deck and demo script: [`demo/`](demo/PITCH.md).
 
 ### Single-port production run
 
@@ -59,7 +67,7 @@ Requests use streaming, `output_config.effort` (low for coaching, medium for roa
 
 ```
 server/src
-  ai/        engine.js (deterministic planner) · claude.js (SDK, caching) · index.js (orchestration)
+  ai/        engine.js (deterministic planner) · claude.js (Claude API / Agent SDK providers, caching) · index.js (orchestration)
   data/      archetypes.js (10 dream archetypes: phases, actions, risks, resources) · templates.js (50 dreams)
   lib/       auth.js (JWT) · state.js (persistence + progress stats)
   routes/    auth, profile, dreams, roadmap, progress, coaching, templates, dashboard

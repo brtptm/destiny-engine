@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import './db.js';
 import { aiStatus } from './ai/index.js';
+import { probeAgentSdk } from './ai/claude.js';
 import { ensureDemoUser } from './seed.js';
 import auth from './routes/auth.js';
 import profile from './routes/profile.js';
@@ -65,8 +66,13 @@ app.use((err, _req, res, _next) => {
 });
 
 await ensureDemoUser();
+const describe = (ai) => (ai.provider === 'api' ? `Claude API (${ai.model})`
+  : ai.provider === 'agent-sdk' ? `Claude Agent SDK via local Claude Code login (${ai.model})`
+  : 'built-in engine (set ANTHROPIC_API_KEY, or sign in to Claude Code, to enable Claude)');
+
 app.listen(PORT, () => {
-  const ai = aiStatus();
   console.log(`✦ Destiny Engine API on http://localhost:${PORT}`);
-  console.log(ai.enabled ? `  AI: Claude (${ai.model})` : '  AI: built-in engine (set ANTHROPIC_API_KEY to enable Claude)');
+  console.log(`  AI: ${describe(aiStatus())}`);
 });
+// Without an API key, check in the background whether the local Claude Code login works.
+if (aiStatus().provider === 'engine') probeAgentSdk().then((ai) => ai.enabled && console.log(`  AI: ${describe(ai)}`));
