@@ -1,0 +1,20 @@
+# Render Blueprint: one free web service that serves the API and the built client.
+# The free plan has no persistent disk, so the SQLite DB resets on restart/deploy;
+# the server re-seeds the demo account (demo@destiny.app / dream-big-2026) on boot.
+services:
+  - type: web
+    name: destiny-engine
+    runtime: node
+    plan: free
+    branch: main
+    autoDeploy: true
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ANTHROPIC_API_KEY
+        sync: false # optional: set in the dashboard to use Claude; otherwise the built-in engine runs
