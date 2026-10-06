@@ -1,12 +1,12 @@
-// Aarav's demo journey as plain data: used by the API seed (seed.js) and the browser-only demo build.
+// Bharat's demo journey as plain data: used by the API seed (seed.js) and the browser-only demo build.
 import * as engine from '../ai/engine.js';
 
-export const DEMO_EMAIL = 'demo@destiny.app';
-export const DEMO_PASSWORD = 'dream-big-2026';
-export const DEMO_NAME = 'Aarav Mehta';
+export const DEMO_EMAIL = 'demo@demo.com';
+export const DEMO_PASSWORD = 'demo1234';
+export const DEMO_NAME = 'Bharat Rawat';
 
 export const DEMO_PROFILE = {
-  basicInfo: { name: 'Aarav Mehta', age: 32, location: 'Delhi', maritalStatus: 'married', childrenCount: 2, childrenAges: [8, 6], education: 'MBA, Marketing' },
+  basicInfo: { name: 'Bharat Rawat', age: 32, location: 'Delhi', maritalStatus: 'married', childrenCount: 2, childrenAges: [8, 6], education: 'MBA, Marketing' },
   financial: { monthlyIncome: 125000, monthlyExpenses: 70000, savings: 450000, debts: 500000, investments: 2000000, assets: ['apartment', 'car'], creditScore: 750 },
   professional: { currentJob: 'Marketing Manager', currentCompany: 'TCS', yearsExperience: 8, skills: ['Digital marketing', 'Social media', 'Analytics', 'Copywriting'], softSkills: ['Communication', 'Leadership'], hiddenTalents: 'Photography', remoteCapability: 0.95, growthPotential: 'limited' },
   personal: { healthStatus: 'good', riskTolerance: 'medium', availableHours: 2.5, motivationLevel: 9, learningSpeed: 'fast', familySupport: 'high' },
@@ -47,7 +47,7 @@ export function buildDemoJourney(now = Date.now()) {
     currentWeek: 6, completedWeeks: [1, 2, 3, 4, 5], celebrated: [], startedAt: started.toISOString(),
   };
   const messages = [
-    [32, 'nudge', '💪', 'Good morning, Aarav. Today\'s move: build a 3-piece portfolio from past campaigns. Week 1 is 40% done — you\'re on track.', 'Build your portfolio'],
+    [32, 'nudge', '💪', 'Good morning, Bharat. Today\'s move: build a 3-piece portfolio from past campaigns. Week 1 is 40% done — you\'re on track.', 'Build your portfolio'],
     [25, 'celebration', '🎉', 'First freelance rupee earned! ₹12,000 from your trial project — proof that your skills travel.', 'Ask the client for a testimonial'],
     [18, 'tip', '💡', 'Batch your outreach on Tuesdays and creative work on Thursdays. Context switching costs ~20 minutes each time.', 'Block Tuesday 8–9pm for pitches'],
     [11, 'opportunity', '✨', 'Two D2C brands in your network are hiring short-term social media help. Spend 20 minutes on targeted pitches.', 'Send 2 pitches before lunch'],

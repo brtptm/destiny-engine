@@ -6,7 +6,7 @@ import { computeStats, statsOut, emptyProgress } from '@server/lib/stats.js';
 import { TEMPLATES, getTemplate } from '@server/data/templates.js';
 import { DEMO_EMAIL, DEMO_PASSWORD, DEMO_NAME, buildDemoJourney } from '@server/data/demo.js';
 
-const KEY = 'de-demo-db-v1';
+const KEY = 'de-demo-db-v2';
 const DEFAULT_SETTINGS = { theme: 'dark', coachingTime: 'morning', emailNotifications: true, pushNotifications: true, weeklySummary: true };
 const blank = () => ({ users: {}, profiles: {}, dreams: [], roadmaps: [], progress: {}, messages: [], adaptations: {} });
 
@@ -340,7 +340,7 @@ export function createDemoApi(tokens) {
       return { adaptationId: id, roadmapId: ctx.roadmap.id, advice, source: 'engine' };
     }, { ...w, ms: 1200 }),
 
-    /** Demo-only: put Aarav's journey back to day one of the demo. */
+    /** Demo-only: put Bharat's journey back to day one of the demo. */
     resetDemo: handler(() => {
       const user = seedDemo();
       return { token: `demo.${user.id}`, user: publicUser(user) };

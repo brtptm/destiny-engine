@@ -32,7 +32,7 @@ export default function Settings() {
 
   if (!data) return <Spinner />;
   const s = data.user.settings;
-  const isDemo = data.user.email === 'demo@destiny.app';
+  const isDemo = data.user.email === 'demo@demo.com';
 
   async function save(patch) {
     setError(null);

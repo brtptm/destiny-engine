@@ -30,7 +30,7 @@ Destiny Engine takes ten minutes to understand your life — money, skills, fami
 | 1 | **Destiny Engine** | 0:00 | "We built Destiny Engine. You tell it where your life is and where you want it to be; it turns that dream into a map you can walk. The stars behind me are the product's metaphor — every month of your plan is a star." |
 | 2 | **The problem** | 0:15 | "Everyone has a dream; almost no one has a plan for this Tuesday. Three things fail: advice is generic, nobody notices when you drift, and one obstacle kills a static plan." *(click the three cards)* |
 | 3 | **Insight** | 0:40 | "The gap isn't motivation — it's translation. From a dream in plain words, through your real constraints, to seven actions this week." |
-| 4 | **Meet Aarav** | 1:00 | "Aarav is 32, in Delhi, two kids, a loan, 2.5 hours a day. He wants Goa. Destiny Engine says 93% feasible, 7 months, moving day in month 6." |
+| 4 | **Meet Bharat** | 1:00 | "Bharat is 32, in Delhi, two kids, a loan, 2.5 hours a day. He wants Goa. Destiny Engine says 93% feasible, 7 months, moving day in month 6." |
 | 5 | **How it works** | 1:20 | "Four steps, under ten minutes: map your life, name your dream, see if it adds up, walk the roadmap." |
 | 6 | **Feasibility** | 1:35 | "Honest before hopeful — six scored dimensions, each explained with your own rupees." |
 | 7 | **Roadmap** | 1:50 | "Your plan is a constellation. Every action has a time estimate, a tool and a 'done when'." |
@@ -52,7 +52,7 @@ Start with the app open at `http://localhost:5173` in a separate Chrome window, 
    *"This is the journey metaphor in 3D. Let's open a real journey."* → click **Explore a live demo**.
 
 2. **Today (40s)** — Point at the coach card.
-   *"Aarav is in week 6. This message is generated from his live progress."*
+   *"Bharat is in week 6. This message is generated from his live progress."*
    Tick **today's action** → the week bar and journey % move.
 
 3. **Roadmap (40s)** — Click **Roadmap**.
@@ -179,7 +179,7 @@ Some claims that circulate about Destiny Engine aren't backed by the product or 
 |---|---|---|
 | "Beta data: 92% finished week 1, 87% month 1, 5.2 days/week" · "92% 30-day retention" | There are no beta users yet. | "Week-1 and month-1 completion are the first numbers we'd measure in a pilot." |
 | Competitor scorecards ("ChatGPT 20%, Notion 0%…") | The percentages are invented. | Use the qualitative comparison: one-off advice vs a persistent plan that tracks money and re-plans. |
-| "Priya, 31, moved to Goa…" as a real success story | The stories are illustrative composites (the app labels them). | "An illustrative path for a profile like Aarav's." |
+| "Priya, 31, moved to Goa…" as a real success story | The stories are illustrative composites (the app labels them). | "An illustrative path for a profile like Bharat's." |
 | "Feasibility 96% → 78%" · "moving day month 5" | The app computes 93% → 89% and moving day month 6 → 7 for this setback. | Quote what the screen shows, as in the demo script. |
 | "Tier 3: Agent SDK, local inference, works offline, never fails" | The Agent SDK uses your Claude Code login over the internet. Only the deterministic engine is offline. | "Claude API → Claude via local login → built-in engine; the engine always answers, offline." |
 | "Prompt caching makes repeats free" | We cache identical analyses in memory; we haven't measured API cost savings. | "Repeat analyses are cached, so the same request doesn't call the model twice." |

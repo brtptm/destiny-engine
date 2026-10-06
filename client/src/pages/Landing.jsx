@@ -89,12 +89,12 @@ export default function Landing() {
         <section className="relative z-10 max-w-[1180px] mx-auto px-4 sm:px-8 -mt-20 pb-16 grid lg:grid-cols-[1fr_1.15fr] gap-10 items-center">
           <div className="lg:pr-6">
             <h2 className="text-2xl sm:text-3xl max-w-[18ch]">One dream, one week at a time</h2>
-            <p className="text-ink-2 mt-4 max-w-[46ch]">Aarav wants to leave Delhi for Goa with his family. Destiny Engine scored it 93% feasible, split it into four phases, and handed him seven concrete actions for this week.</p>
+            <p className="text-ink-2 mt-4 max-w-[46ch]">Bharat wants to leave Delhi for Goa with his family. Destiny Engine scored it 93% feasible, split it into four phases, and handed him seven concrete actions for this week.</p>
           </div>
           <div className="panel glass p-5 sm:p-6 min-w-0 float shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)]">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <div>
-                <div className="text-sm text-ink-3">Aarav’s dream</div>
+                <div className="text-sm text-ink-3">Bharat’s dream</div>
                 <div className="font-semibold">Move to Goa, freelance, live by the beach</div>
               </div>
               <div className="text-right">

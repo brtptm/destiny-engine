@@ -53,7 +53,7 @@ export default function Auth({ mode }) {
               <ErrorNote error={error} />
               <button className="btn btn-primary w-full mt-2" disabled={busy}>{busy ? 'One moment…' : isSignup ? 'Create account' : 'Sign in'}</button>
               <button type="button" className="btn btn-ghost w-full" disabled={busy} onClick={() => finish(api.demo())}>Use the demo account</button>
-              {DEMO && <p className="text-xs text-ink-3 text-center">Demo login: demo@destiny.app / dream-big-2026. New accounts are saved in this browser only.</p>}
+              {DEMO && <p className="text-xs text-ink-3 text-center">Demo login: demo@demo.com / demo1234. New accounts are saved in this browser only.</p>}
             </div>
             <p className="text-sm text-ink-3 mt-6">
               {isSignup ? <>Already have an account? <Link className="text-gold-text font-semibold" to="/signin">Sign in</Link></>

@@ -5,7 +5,7 @@ import * as engine from '../src/ai/engine.js';
 import { computeStats } from '../src/lib/state.js';
 
 const AARAV = {
-  basicInfo: { name: 'Aarav Mehta', age: 32, location: 'Delhi', maritalStatus: 'married', childrenCount: 2 },
+  basicInfo: { name: 'Bharat Rawat', age: 32, location: 'Delhi', maritalStatus: 'married', childrenCount: 2 },
   financial: { monthlyIncome: 125000, monthlyExpenses: 70000, savings: 450000, debts: 500000, investments: 2000000 },
   professional: { currentJob: 'Marketing Manager', yearsExperience: 8, skills: ['Digital marketing', 'Social media', 'Analytics', 'Copywriting'], remoteCapability: 0.95 },
   personal: { availableHours: 2.5, motivationLevel: 9, learningSpeed: 'fast', familySupport: 'high' },

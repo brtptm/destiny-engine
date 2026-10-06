@@ -11,7 +11,7 @@ pnpm install
 pnpm dev            # API on :4000, app on http://localhost:5173
 ```
 
-Click **Explore a live demo** on the landing page (or sign in as `demo@destiny.app` / `dream-big-2026`) to see a seeded journey: Aarav's "move to Goa" plan, five weeks in, with income logged and coaching history.
+Click **Explore a live demo** on the landing page (or sign in as `demo@demo.com` / `demo1234`) to see a seeded journey: Bharat's "move to Goa" plan, five weeks in, with income logged and coaching history.
 
 **AI providers, picked automatically (check `GET /api/health` → `ai.provider`):**
 
@@ -39,7 +39,7 @@ pnpm build && pnpm start   # serves the built client + API on :4000
 - `slides.html`: the pitch deck (`slide.html` redirects to it), with a button back to the app.
 - `404.html`: a copy of the app, so deep links like `/today` work on GitHub Pages.
 
-Sign in with **Explore a live demo** (or `demo@destiny.app` / `dream-big-2026`), or create an account; a bar at the top links to the slides and resets Aarav's demo. Pushing the `demo` branch runs `.github/workflows/pages.yml`, which builds with `VITE_BASE=/<repo>/` and deploys to GitHub Pages. Preview locally with `VITE_BASE=/ pnpm build:demo` and any static server.
+Sign in with **Explore a live demo** (or `demo@demo.com` / `demo1234`), or create an account; a bar at the top links to the slides and resets Bharat's demo. Pushing the `demo` branch runs `.github/workflows/pages.yml`, which builds with `VITE_BASE=/<repo>/` and deploys to GitHub Pages. Preview locally with `VITE_BASE=/ pnpm build:demo` and any static server.
 
 ## How the AI works
 

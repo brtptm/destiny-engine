@@ -20,7 +20,7 @@ export default function DemoBar() {
     <div className="bg-surface border-b border-line text-xs text-ink-2 px-4 py-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
       <span><span className="text-gold-text font-semibold">Live demo</span> · the whole app runs in your browser — no server, nothing leaves this device</span>
       <a href={`${BASE}slides.html`} className="font-semibold text-ink hover:text-gold-text">Pitch slides →</a>
-      <button onClick={reset} disabled={busy} className="font-semibold text-ink hover:text-gold-text">{busy ? 'Resetting…' : 'Reset Aarav’s demo'}</button>
+      <button onClick={reset} disabled={busy} className="font-semibold text-ink hover:text-gold-text">{busy ? 'Resetting…' : 'Reset Bharat’s demo'}</button>
     </div>
   );
 }
