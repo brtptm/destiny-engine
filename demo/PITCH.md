@@ -30,12 +30,12 @@ Destiny Engine takes ten minutes to understand your life — money, skills, fami
 | 1 | **Destiny Engine** | 0:00 | "We built Destiny Engine. You tell it where your life is and where you want it to be; it turns that dream into a map you can walk. The stars behind me are the product's metaphor — every month of your plan is a star." |
 | 2 | **The problem** | 0:15 | "Everyone has a dream; almost no one has a plan for this Tuesday. Three things fail: advice is generic, nobody notices when you drift, and one obstacle kills a static plan." *(click the three cards)* |
 | 3 | **Insight** | 0:40 | "The gap isn't motivation — it's translation. From a dream in plain words, through your real constraints, to seven actions this week." |
-| 4 | **Meet Aarav** | 1:00 | "Aarav is 32, in Delhi, two kids, a loan, 2.5 hours a day. He wants Goa. Destiny Engine says 96% feasible, 8 months, moving day in month 5." |
+| 4 | **Meet Aarav** | 1:00 | "Aarav is 32, in Delhi, two kids, a loan, 2.5 hours a day. He wants Goa. Destiny Engine says 93% feasible, 7 months, moving day in month 6." |
 | 5 | **How it works** | 1:20 | "Four steps, under ten minutes: map your life, name your dream, see if it adds up, walk the roadmap." |
 | 6 | **Feasibility** | 1:35 | "Honest before hopeful — six scored dimensions, each explained with your own rupees." |
 | 7 | **Roadmap** | 1:50 | "Your plan is a constellation. Every action has a time estimate, a tool and a 'done when'." |
 | 8 | **Coaching** | 2:05 | "A coach that knows it's week 6 — nudges, tips, warnings when you slip, celebrations at milestones." |
-| 9 | **Adaptive planning** | 2:20 | "When life happens, the plan bends. 'I sent 25 pitches, one reply' → diagnosis, four new actions, timeline 7 → 8 months, one click." |
+| 9 | **Adaptive planning** | 2:20 | "When life happens, the plan bends. 'I sent 25 pitches, one reply' → diagnosis, four new actions, and before he accepts: 7 → 8 months, feasibility 93% → 89%, moving day month 6 → 7. One click." |
 | 10 | **Use cases** | 2:35 | "Ten kinds of dreams, fifty templates — relocation to FIRE to a marathon." |
 | 11 | **How the AI works** | 2:45 | "Numbers are computed, never invented. Claude personalises; we validate every field; any failure falls back instantly." |
 | 12–14 | Stack · market · next | 2:55 | One sentence each — then **"Let me show you."** |
@@ -59,13 +59,14 @@ Start with the app open at `http://localhost:5173` in a separate Chrome window, 
    *"Seven months, four phases — the gold line is how far he's come."* Click a **future star** (e.g. the Transition month) → *"Every week, seven actions with time, tools and a definition of done."* Expand one action.
    Scroll to **Financial projection** and **Risks**.
 
-4. **Progress (30s)** — Click **Progress** → in *Log income or savings*, enter `15000`, source `New client retainer` → **Log it**.
-   *"The income chart against plan updates instantly."*
+4. **Progress (30s)** — On **Today**, point at *Runway if you went all-in today*: 8 months with no income, ~16 counting his side income.
+   Click **Log income or savings** → enter `15000`, source `New client retainer` → **Log it**.
+   *"The income chart updates, and his runway counting side income jumps — that's the number that tells him when it's safe to quit."*
 
-5. **Adaptive planning (60s) — the wow moment** — Click **Coach → Get help**.
-   Pick **Not getting clients or leads**, type: `Sent 25 pitches in two weeks, only one reply`. → **Get advice**.
-   *"Diagnosis, likely causes, fixes, and the timeline impact before I accept."* → **Apply to my roadmap** → **See the new plan**.
-   *"Completed weeks are untouched; this week now has the course-correction actions, and the timeline moved from 7 to 8 months."*
+5. **Adaptive planning (60s) — the wow moment** — On **Today**, under *Stuck on something?*, click **Not getting clients** (or **Coach → Get help**).
+   Type: `Sent 25 pitches in two weeks, only one reply`. → **Get advice**.
+   *"Diagnosis, likely causes, fixes — and before I accept, exactly what changes: 7 → 8 months, feasibility 93% → 89% because demand and income are at risk, and moving day slides from month 6 to 7. Weeks 1–5 stay locked."* → **Apply this plan** (or **Keep my original plan**) → **See the new plan**.
+   *"The constellation now ends a month later, the header says 89% feasible (was 93%), and this week has the course-correction actions."*
 
 6. **Celebration (20s)** — Go to **Today** → **Complete week N** → confetti.
    *"Small wins, celebrated. That's how dreams survive week three."*
@@ -167,3 +168,22 @@ Account Aggregator-based automatic income and savings tracking, WhatsApp coachin
 
 **"What was hardest?"**
 Making the plan adapt without losing history: re-planning only from the current week, keeping completed weeks and action IDs stable so progress survives every change.
+
+---
+
+## 9. Claims to keep out of the pitch
+
+Some claims that circulate about Destiny Engine aren't backed by the product or any data yet. A judge who asks a follow-up will find the gap, so use the honest version instead.
+
+| Don't say | Why | Say instead |
+|---|---|---|
+| "Beta data: 92% finished week 1, 87% month 1, 5.2 days/week" · "92% 30-day retention" | There are no beta users yet. | "Week-1 and month-1 completion are the first numbers we'd measure in a pilot." |
+| Competitor scorecards ("ChatGPT 20%, Notion 0%…") | The percentages are invented. | Use the qualitative comparison: one-off advice vs a persistent plan that tracks money and re-plans. |
+| "Priya, 31, moved to Goa…" as a real success story | The stories are illustrative composites (the app labels them). | "An illustrative path for a profile like Aarav's." |
+| "Feasibility 96% → 78%" · "moving day month 5" | The app computes 93% → 89% and moving day month 6 → 7 for this setback. | Quote what the screen shows, as in the demo script. |
+| "Tier 3: Agent SDK, local inference, works offline, never fails" | The Agent SDK uses your Claude Code login over the internet. Only the deterministic engine is offline. | "Claude API → Claude via local login → built-in engine; the engine always answers, offline." |
+| "Prompt caching makes repeats free" | We cache identical analyses in memory; we haven't measured API cost savings. | "Repeat analyses are cached, so the same request doesn't call the model twice." |
+| "3 years to replicate" · "zero competition" | Unprovable, and judges discount it. | Name the real moat: the deterministic engine + 10 archetypes + adaptive re-planning that keeps history. |
+| "Every transaction flows through Paytm" | Not true of the product today. | "Every roadmap carries a monthly savings target, which maps naturally onto goal-based savings, SIPs and loans." |
+| ARR projections (₹26Cr by year 3), "₹500K per partner" | Assumptions, and inconsistent with the per-roadmap pricing in the same doc. | If asked, present pricing as hypotheses to test with one bank pilot. |
+| "~180KB gzipped", "<500ms startup", Sentry/PostHog/Cloudinary/Vercel in production | Not measured or not set up. | Describe what's built: one Node process, SQLite, a single-port production build. |

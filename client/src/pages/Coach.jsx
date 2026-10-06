@@ -70,8 +70,9 @@ function Messages() {
 function GetHelp() {
   const qc = useQueryClient();
   const { data: dash } = useDashboard();
+  const [params] = useSearchParams();
   const issues = useQuery({ queryKey: ['issues'], queryFn: api.issues, staleTime: Infinity });
-  const [issue, setIssue] = useState('');
+  const [issue, setIssue] = useState(params.get('issue') || '');
   const [details, setDetails] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -103,7 +104,8 @@ function GetHelp() {
         <div className="w-10 h-10 rounded-full grid place-items-center" style={{ background: 'var(--sea)', color: 'var(--bg)' }}><FiCheck size={20} strokeWidth={3} /></div>
         <h2 className="text-xl mt-4">Your roadmap is updated</h2>
         <p className="text-ink-2 mt-2">
-          {result.advice.timelineImpactMonths === 0 ? 'Same timeline, sharper actions.' : `Timeline is now ${applied.totalMonths} months.`} The next actions in this week are your course correction — they’re marked on the roadmap.
+          {result.advice.timelineImpactMonths === 0 ? 'Same timeline, sharper actions.' : `Timeline is now ${applied.totalMonths} months.`}
+          {result.advice.feasibility ? ` Feasibility is ${result.advice.feasibility.to}%.` : ''} Your completed weeks are exactly as you left them; this week’s course-correction actions are marked on the roadmap.
         </p>
         <div className="mt-6 flex gap-3"><Link to="/roadmap" className="btn btn-primary">See the new plan</Link><button className="btn btn-ghost" onClick={reset}>Done</button></div>
       </div>
@@ -112,7 +114,9 @@ function GetHelp() {
 
   if (result) {
     const a = result.advice;
-    const from = dash?.roadmap?.totalMonths;
+    const from = a.preview?.fromMonths ?? dash?.roadmap?.totalMonths;
+    const f = a.feasibility;
+    const moved = (a.preview?.milestoneShifts || []).filter((m) => m.from !== m.to);
     return (
       <div className="grid lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-6 items-start rise">
         <section className="panel p-6 sm:p-7">
@@ -136,12 +140,42 @@ function GetHelp() {
             <div className="text-center"><div className="num text-3xl text-gold-text">{a.newTotalMonths}</div><div className="text-xs text-ink-3">months after</div></div>
           </div>
           <p className="text-sm text-ink-2 mt-4">{a.encouragement}</p>
+
+          {f && (
+            <div className="mt-6">
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="text-base">Feasibility</h3>
+                <span className="num text-lg">{f.from}% <span className="text-ink-3">→</span> <span style={{ color: f.to < f.from ? 'var(--rose)' : 'var(--sea)' }}>{f.to}%</span></span>
+              </div>
+              {f.reason && <p className="text-sm text-ink-3 mt-1">{f.reason}{f.to >= 55 ? ' — still walkable.' : '.'}</p>}
+              <ul className="mt-2 grid gap-1 text-sm">
+                {f.changes.map((c) => (
+                  <li key={c.key} className="flex justify-between gap-3"><span className="text-ink-2">{c.label}</span><span className="num">{c.from} → {c.to}</span></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {a.preview && (
+            <div className="mt-6">
+              <h3 className="text-base">What moves</h3>
+              {moved.length ? (
+                <ul className="mt-2 grid gap-1.5 text-sm">
+                  {moved.map((m) => <li key={m.title} className="flex justify-between gap-3"><span>{m.title}</span><span className="num text-ink-2 shrink-0">month {m.from} → <span className="text-gold-text">{m.to}</span></span></li>)}
+                </ul>
+              ) : <p className="text-sm text-ink-2 mt-2">No milestones move — only this week’s actions change.</p>}
+              {a.preview.lockedWeeks > 0 && (
+                <p className="text-sm text-ink-3 mt-3">Weeks 1–{a.preview.lockedWeeks} stay exactly as you did them. Only the weeks ahead are re-planned.</p>
+              )}
+            </div>
+          )}
+
           <h3 className="text-base mt-6">New actions this week</h3>
           <ol className="mt-2 grid gap-2">{a.alternativeActions.map((x, i) => <li key={x} className="flex gap-3"><span className="num text-gold-text">{i + 1}</span>{x}</li>)}</ol>
           <div className="mt-4"><ErrorNote error={error} /></div>
           <div className="mt-6 flex flex-wrap gap-3">
-            <button className="btn btn-primary" onClick={apply} disabled={busy}>{busy ? 'Re-planning…' : 'Apply to my roadmap'}</button>
-            <button className="btn btn-ghost" onClick={reset}>Not now</button>
+            <button className="btn btn-primary" onClick={apply} disabled={busy}>{busy ? 'Re-planning…' : 'Apply this plan'}</button>
+            <button className="btn btn-ghost" onClick={reset}>Keep my original plan</button>
           </div>
         </section>
       </div>

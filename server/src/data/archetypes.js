@@ -784,6 +784,7 @@ export const ARCHETYPES = {
   },
 };
 
+// Illustrative composite stories (not real people); the UI labels them as such.
 export const STORIES = {
   relocation: { name: 'Priya S.', age: 34, from: 'Gurugram', outcome: 'Moved to Goa with her family in 7 months; now earns ₹1.4L/month as a remote brand strategist.', quote: 'The plan made the scary part boring — and that is exactly what I needed.' },
   freelance: { name: 'Rohan M.', age: 29, from: 'Pune', outcome: 'Replaced his ₹90k salary with freelance UX work in 5 months, now at ₹2.1L/month.', quote: 'Retainers, not one-off gigs, were the unlock.' },

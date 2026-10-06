@@ -93,12 +93,37 @@ export function computeStats(roadmap, progress) {
   const incomeThisMonth = progress.incomeLog.filter((x) => monthOf(x.date) === currentMonth).reduce((s, x) => s + Number(x.amount || 0), 0);
   const projectedIncome = roadmap.financialProjection.byMonth[currentMonth - 1]?.income || 0;
 
+  // Runway: how long savings last if you went all-in today. Two views — with no income at all, and
+  // counting the dream income of the last 30 days (so logging income visibly moves it).
+  const fp = roadmap.financialProjection;
+  const startingSavings = fp.startingSavings ?? (fp.byMonth[0] ? fp.byMonth[0].cumulative - fp.byMonth[0].savings : 0);
+  const liquid = Math.max(0, startingSavings + savingsTotal);
+  const expenses = fp.currentMonthlyExpenses || 1;
+  const cutoff = Date.now() - 30 * 86400000;
+  const dreamIncome30 = progress.incomeLog.filter((x) => new Date(x.date).getTime() >= cutoff).reduce((s, x) => s + Number(x.amount || 0), 0);
+  const netBurn = expenses - dreamIncome30;
+  const runway = {
+    liquid, monthlyExpenses: expenses, dreamIncome30,
+    monthsNoIncome: +(liquid / expenses).toFixed(1),
+    monthsWithDreamIncome: netBurn > 0 ? +(liquid / netBurn).toFixed(1) : null, // null = dream income already covers costs
+  };
+
+  // Last closed week, and whether this week carries course-correction actions.
+  const lastWeekNo = progress.completedWeeks.length ? Math.max(...progress.completedWeeks) : null;
+  const lastW = lastWeekNo && weeks.find((w) => w.weekNumber === lastWeekNo);
+  const lastWeek = lastW ? { week: lastWeekNo, done: lastW.actions.filter((a) => completedIds.has(a.id)).length, total: lastW.actions.length } : null;
+  const adaptedOpen = week ? week.actions.filter((a) => a.adapted && !completedIds.has(a.id)).length : 0;
+  const lastAdaptation = (roadmap.adaptations || []).at(-1);
+  const correction = adaptedOpen && lastAdaptation ? { issue: lastAdaptation.issue, open: adaptedOpen } : null;
+
   return {
     totalActions: allActions.length, total: allActions.length, completed: completedIds.size, completedIds,
     percent, currentWeek, currentMonth, totalWeeks, weekDone, weekTotal: week?.actions.length || 7, weekPercent,
     weeksRemaining: totalWeeks - doneWeeks, paceDelta: Math.round(paceDelta), onTrack: paceDelta >= -10,
     achievedMilestones: achieved, upcomingMilestones: upcoming, justHitMilestone, lastMilestone: lastAchieved?.title,
     incomeTotal, savingsTotal, incomeThisMonth, projectedIncome,
+    runway, lastWeek, correction,
+    feasibility: roadmap.feasibilityNow?.percent ?? null,
   };
 }
 

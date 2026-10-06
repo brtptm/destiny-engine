@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db, json, uid } from '../db.js';
 import { requireAuth, HttpError } from '../lib/auth.js';
 import { getActiveDream, getRoadmapForDream, getProgress, computeStats, statsOut, requireProfile } from '../lib/state.js';
-import { generateDailyCoaching, requestAdvice, ISSUE_TYPES } from '../ai/index.js';
+import { generateDailyCoaching, requestAdvice, previewAdaptation, ISSUE_TYPES } from '../ai/index.js';
 
 const r = Router();
 r.use(requireAuth);
@@ -61,6 +61,11 @@ r.post('/request-advice', async (req, res) => {
   if (details && details.length > 1000) throw new HttpError(400, 'Keep the description under 1000 characters.');
   const ctx = context(req.user.id);
   const { data: advice, source } = await requestAdvice({ issue, details, roadmap: ctx.roadmap, stats: statsOut(ctx.stats), profile: ctx.profile });
+  // Show exactly what applying would change before the user decides; the stored advice carries the
+  // re-scored feasibility, so applying it later lands on the same numbers the user saw.
+  const preview = previewAdaptation({ roadmap: ctx.roadmap, advice, profile: ctx.profile, dream: ctx.dream.description, feasibility: ctx.dream.feasibility, currentWeek: ctx.stats.currentWeek });
+  advice.feasibility = preview.feasibility;
+  advice.preview = { milestoneShifts: preview.milestoneShifts, lockedWeeks: preview.lockedWeeks, fromMonths: preview.fromMonths, toMonths: preview.toMonths };
   const id = uid();
   db.prepare('INSERT INTO adaptations (id, user_id, roadmap_id, issue, details, advice) VALUES (?, ?, ?, ?, ?, ?)').run(id, req.user.id, ctx.roadmap.id, issue, details || '', json.str(advice));
   res.status(201).json({ adaptationId: id, roadmapId: ctx.roadmap.id, advice, source });

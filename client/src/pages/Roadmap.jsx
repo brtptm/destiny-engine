@@ -58,7 +58,10 @@ export default function Roadmap() {
 
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-ink-3 text-sm">Your destiny roadmap · {plural(roadmap.totalMonths, 'month')} · ends {endDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</p>
+          <p className="text-ink-3 text-sm">
+            Your destiny roadmap · {plural(roadmap.totalMonths, 'month')} · ends {endDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
+            {data.dream?.feasibility && <> · {stats.feasibility ?? data.dream.feasibility.feasibilityPercent}% feasible{stats.feasibility != null && stats.feasibility !== data.dream.feasibility.feasibilityPercent ? ` (was ${data.dream.feasibility.feasibilityPercent}%)` : ''}</>}
+          </p>
           <h1 className="text-xl sm:text-3xl mt-1 max-w-[34ch]">{roadmap.dreamSummary}</h1>
         </div>
         <SourceNote source={roadmap.source} />
@@ -204,7 +207,7 @@ export default function Roadmap() {
             {roadmap.adaptations.slice().reverse().map((a) => (
               <li key={a.date} className="py-3 flex flex-wrap justify-between gap-2">
                 <span><span className="font-semibold">{a.issue}</span><span className="text-ink-2"> — {a.summary}</span></span>
-                <span className="text-sm text-ink-3">{new Date(a.date).toLocaleDateString('en-IN')} · {a.timelineChange === 0 ? 'timeline unchanged' : `${a.fromMonths} → ${a.toMonths} months`}</span>
+                <span className="text-sm text-ink-3">{new Date(a.date).toLocaleDateString('en-IN')} · {a.timelineChange === 0 ? 'timeline unchanged' : `${a.fromMonths} → ${a.toMonths} months`}{a.feasibilityTo != null ? ` · feasibility ${a.feasibilityFrom}% → ${a.feasibilityTo}%` : ''}</span>
               </li>
             ))}
           </ul>

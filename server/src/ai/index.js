@@ -6,7 +6,7 @@ import * as engine from './engine.js';
 import { askJSON, cached, aiStatus } from './claude.js';
 
 export { aiStatus };
-export const { classifyDream, normalizeProfile, ISSUE_TYPES } = engine;
+export const { classifyDream, normalizeProfile, ISSUE_TYPES, previewAdaptation } = engine;
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const hash = (...parts) => crypto.createHash('sha1').update(JSON.stringify(parts)).digest('hex');
@@ -99,7 +99,7 @@ Return JSON:
  },
  "keyObstacles": ["3-4 specific obstacles"], "successFactors": ["3-4"], "recommendations": ["3 specific next steps"],
  "verdict": "one encouraging, honest sentence",
- "successStory": {"name": "first name + initial", "age": int, "from": "city", "outcome": "1 sentence anonymised story of someone with a similar profile achieving a similar dream", "quote": "short quote"}}
+ "successStory": {"name": "first name + initial", "age": int, "from": "city", "outcome": "1 sentence illustrative (composite, not a real person) story of a similar profile achieving a similar dream", "quote": "short quote"}}
 Keep recommendedMonths between 3 and 18.`);
     const comps = {};
     for (const [k, v] of Object.entries(base.components)) {
@@ -261,7 +261,11 @@ Name: ${p.basicInfo.name || 'the user'}; job: ${p.professional.currentJob}; city
 Dream: "${ctx.roadmap.dreamSummary}" (${ctx.roadmap.totalMonths}-month plan)
 Progress: week ${ctx.stats.currentWeek}, ${ctx.stats.completed}/${ctx.stats.total} actions done (${ctx.stats.percent}%), this week ${ctx.stats.weekPercent}% done, pace vs plan: ${Math.round(ctx.stats.paceDelta)}%
 Income logged so far: ₹${ctx.stats.incomeTotal}
+${ctx.stats.lastWeek ? `Last closed week: week ${ctx.stats.lastWeek.week}, ${ctx.stats.lastWeek.done}/${ctx.stats.lastWeek.total} actions done` : ''}
+${ctx.stats.runway ? `Runway: ₹${ctx.stats.runway.liquid} saved = ${ctx.stats.runway.monthsNoIncome} months with no income; ${ctx.stats.runway.monthsWithDreamIncome == null ? 'dream income already covers monthly costs' : `${ctx.stats.runway.monthsWithDreamIncome} months counting the last 30 days of dream income (₹${ctx.stats.runway.dreamIncome30})`}` : ''}
+${ctx.stats.correction ? `This is a course-correction week after "${ctx.stats.correction.issue}" — ${ctx.stats.correction.open} new corrective actions are open; lead with them.` : ''}
 ${ctx.stats.justHitMilestone ? `They just hit a milestone: ${ctx.stats.lastMilestone}` : ''}
+Use only the numbers given here; don't invent figures.
 This week's open actions: ${J((week?.actions || []).filter((a) => !ctx.stats.completedIds.has(a.id)).map((a) => `${a.day}: ${a.action}`))}
 Today: ${new Date(ctx.today).toDateString()}. Recent message types: ${J((ctx.history || []).slice(0, 3).map((h) => h.type))} — vary it.
 Suggested type: ${base.type}
@@ -295,7 +299,8 @@ In their words: "${details || '(no details)'}"
 Return JSON:
 {"diagnosis": "2 sentences, empathetic and specific", "likelyCauses": ["3"], "solutions": ["3 concrete solutions"],
  "alternativeActions": ["4 specific actions they can do in the next 2 weeks"], "pivotStrategies": ["1-2"],
- "timelineImpactMonths": integer between -2 and 3, "encouragement": "1 sentence"}`, { effort: 'low', maxTokens: 3000 });
+ "timelineImpactMonths": integer between -2 and 3, "encouragement": "1 sentence"}
+Use only numbers from the profile and the user's words; don't quote statistics, conversion rates or benchmarks.`, { effort: 'low', maxTokens: 3000 });
     const impact = isNum(r.timelineImpactMonths) ? Math.max(-2, Math.min(3, Math.round(r.timelineImpactMonths))) : base.timelineImpactMonths;
     return {
       ...base,
@@ -328,7 +333,8 @@ Return JSON: {"months": [{"month": int, "title": "", "focus": "", "goal": "", "m
       fresh.months = fresh.months.map((m) => {
         const c = m.month >= currentMonth && r.months.find((x) => Number(x.month) === m.month);
         if (!c) return m;
-        return { ...m, title: str(c.title, m.title), focus: str(c.focus, m.focus), goal: str(c.goal, m.goal), milestone: c.milestone?.title ? { title: c.milestone.title, significance: str(c.milestone.significance, '') } : m.milestone };
+        // Milestones stay where the engine placed them (the preview the user approved); Claude may only re-word them.
+        return { ...m, title: str(c.title, m.title), focus: str(c.focus, m.focus), goal: str(c.goal, m.goal), milestone: m.milestone && c.milestone?.title ? { title: c.milestone.title, significance: str(c.milestone.significance, m.milestone.significance) } : m.milestone };
       });
       fresh.milestones = fresh.months.filter((m) => m.milestone).map((m) => ({ month: m.month, milestone: m.milestone.title, significance: m.milestone.significance }));
     }

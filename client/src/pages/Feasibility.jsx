@@ -137,6 +137,7 @@ export default function Feasibility() {
         <figure className="mt-6 panel p-7 sm:p-9 grid md:grid-cols-[auto_1fr] gap-6 items-center">
           <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true"><path d={starPath(28, 28, 22)} fill="var(--gold)" /></svg>
           <div>
+            <p className="text-xs text-ink-3 mb-2">Illustrative story — a composite of the path profiles like yours take, not a real person</p>
             <blockquote className="text-xl sm:text-2xl font-display leading-snug">“{f.successStory.quote}”</blockquote>
             <figcaption className="mt-3 text-ink-2">{f.successStory.name}{f.successStory.age ? `, ${f.successStory.age}` : ''}{f.successStory.from ? ` from ${f.successStory.from}` : ''} — {f.successStory.outcome}</figcaption>
           </div>

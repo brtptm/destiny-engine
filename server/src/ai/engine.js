@@ -146,6 +146,11 @@ function ctxFor(p, dream) {
 }
 const fill = (s, ctx) => (s || '').replace(/\{(\w+)\}/g, (_, k) => ctx[k] ?? '');
 
+const WEIGHTS = { financial: 0.27, skills: 0.22, family: 0.16, location: 0.1, timeline: 0.13, market: 0.12 };
+const COMPONENT_LABELS = { financial: 'Financial', skills: 'Skills', family: 'Family', location: 'Location', timeline: 'Timeline', market: 'Market demand' };
+/** One weighting for the first score and every re-score, so numbers stay comparable over time. */
+export const overallFeasibility = (scores) => Math.round(Object.entries(WEIGHTS).reduce((t, [k, w]) => t + (Number(scores[k]) || 0) * w, 0));
+
 export function analyzeDreamFeasibility(raw, dream, archetypeKey) {
   const p = normalizeProfile(raw);
   const key = archetypeKey || classifyDream(dream);
@@ -193,7 +198,7 @@ export function analyzeDreamFeasibility(raw, dream, archetypeKey) {
   const maxMonths = Math.round(recommended * 1.5);
   const timeline = clamp(Math.round(95 - Math.max(0, recommended - a.baseMonths) * 4 - (hours < 1 ? 10 : 0)), 40, 97);
 
-  const overall = Math.round(financial * 0.27 + skills * 0.22 + family * 0.16 + location * 0.1 + timeline * 0.13 + market * 0.12);
+  const overall = overallFeasibility({ financial, skills, family, location, timeline, market });
   const confidenceLevel = overall >= 88 ? 'very-high' : overall >= 75 ? 'high' : overall >= 58 ? 'medium' : 'low';
   const ctx = ctxFor(p, dream);
 
@@ -221,7 +226,7 @@ export function analyzeDreamFeasibility(raw, dream, archetypeKey) {
   ];
 
   const explain = {
-    financial: required === 0 ? 'This dream needs time more than money, and your budget comfortably covers small costs like gear or coaching.' : gap > 0 ? `You need about ${inr(required)} and have ${inr(available)} available. Saving ${inr(surplus * 0.8)}/month closes the gap in ~${Math.ceil(monthsToFund)} months.` : `You already have the ${inr(required)} this dream needs. Your runway covers the transition.`,
+    financial: required === 0 ? 'This dream needs time more than money, and your budget comfortably covers small costs like gear or coaching.' : gap > 0 ? `You need about ${inr(required)} and have ${inr(available)} available. Saving ${inr(surplus * 0.8)}/month closes the gap in ~${Math.ceil(monthsToFund)} months.` : `You already have the ${inr(required)} this dream needs. Your savings cover about ${(available / Math.max(exp, 1)).toFixed(1)} months of expenses, which carries the transition.`,
     skills: `Your ${p.professional.skills.length ? `strengths in ${p.professional.skills.slice(0, 3).join(', ')}` : 'experience'} ${skills >= 75 ? 'map well onto' : 'partly cover'} what this dream needs: ${a.skillsNeeded.join(', ')}.`,
     family: dependants ? `${dependants} dependant${dependants > 1 ? 's' : ''} and ${p.personal.familySupport} family support. ${disruptive ? 'Involve them early — the plan includes a family session.' : 'Low disruption to family life.'}` : 'Few dependants gives you high flexibility.',
     location: key === 'relocation' ? `Remote capability of ${Math.round(p.professional.remoteCapability * 100)}% determines how portable your income is.` : `${metro ? 'A metro' : 'Your city'} offers ${metro ? 'a deep' : 'a reasonable'} market for this dream.`,
@@ -255,12 +260,12 @@ export function analyzeDreamFeasibility(raw, dream, archetypeKey) {
 
 // ---------------------------------------------------------------- roadmap
 
-function phaseForMonths(a, total) {
+function phaseForMonths(a, total, lengths) {
   const out = [];
   let used = 0;
   a.phases.forEach((ph, i) => {
     const isLast = i === a.phases.length - 1;
-    const len = isLast ? total - used : Math.max(1, Math.round(total * ph.share));
+    const len = lengths ? lengths[i] : isLast ? total - used : Math.max(1, Math.round(total * ph.share));
     const months = [];
     for (let m = used + 1; m <= Math.min(total, used + len); m++) months.push(m);
     used += months.length;
@@ -321,20 +326,21 @@ function projection(p, a, total, phaseMap) {
   }
   const last = byMonth.at(-1);
   return {
-    currentMonthlyIncome: inc, currentMonthlyExpenses: exp, targetMonthlyIncome: round(target),
+    currentMonthlyIncome: inc, currentMonthlyExpenses: exp, targetMonthlyIncome: round(target), startingSavings: p.financial.savings,
     byMonth,
     totalWealthGain: round(cumulative - p.financial.savings),
     endSavingsRate: last.income ? Math.round((last.savings / last.income) * 100) : 0,
   };
 }
 
-export function generateRoadmap(raw, dream, feasibility) {
+export function generateRoadmap(raw, dream, feasibility, { phaseLengths } = {}) {
   const p = normalizeProfile(raw);
   const key = feasibility?.archetype || classifyDream(dream);
   const a = ARCHETYPES[key];
-  const total = clamp(feasibility?.components?.timeline?.recommendedMonths || a.baseMonths, 3, 18);
+  const lengths = phaseLengths?.length === a.phases.length ? phaseLengths : null;
+  const total = lengths ? lengths.reduce((x, y) => x + y, 0) : clamp(feasibility?.components?.timeline?.recommendedMonths || a.baseMonths, 3, 18);
   const ctx = ctxFor(p, dream);
-  const phaseMap = phaseForMonths(a, total);
+  const phaseMap = phaseForMonths(a, total, lengths);
   const fin = projection(p, a, total, phaseMap);
 
   const phases = phaseMap.map(({ ph, months }, i) => ({
@@ -420,11 +426,24 @@ export function generateDailyCoaching({ profile, roadmap, stats, today, history 
   ];
 
   const nextLine = next ? `“${next.action}” (${next.timeEstimate})` : 'your weekly review';
+  // Specific context the doc-style coach leads with: last week's result, runway, an active course correction.
+  const lw = stats.lastWeek && stats.weekDone === 0 ? `You closed week ${stats.lastWeek.week} with ${stats.lastWeek.done}/${stats.lastWeek.total} actions done. ` : '';
+  const rw = stats.runway;
+  const runwayLine = rw ? (rw.monthsWithDreamIncome == null
+    ? ` Your dream income already covers your monthly costs — your ${inr(rw.liquid)} cushion stays untouched.`
+    : ` Runway check: ${inr(rw.liquid)} saved — ${rw.monthsNoIncome} months with no income, ${rw.monthsWithDreamIncome > 36 ? 'over 3 years' : `${rw.monthsWithDreamIncome} months`} counting what you earn on the side.`) : '';
+  if (stats.correction && !stats.justHitMilestone) {
+    return {
+      type: 'nudge', emoji: '🧭', relevanceScore: 0.95, resource: next?.resource || '',
+      message: `${lw}This is a course-correction week after “${stats.correction.issue.toLowerCase()}”: ${stats.correction.open} new action${stats.correction.open > 1 ? 's' : ''} to get you moving again. Do those before anything else.`,
+      actionSuggested: next ? `Start with ${nextLine}.` : 'Run your weekly review.',
+    };
+  }
   const messages = {
     celebration: { emoji: '🎉', message: `Milestone unlocked, ${name}: ${stats.lastMilestone}. That's ${stats.percent}% of the way to your dream. Take a breath — you earned it.`, action: 'Share the win with someone who believes in you.' },
-    warning: { emoji: '🧭', message: `You're about ${Math.abs(Math.round(stats.paceDelta))}% behind the plan for week ${stats.currentWeek}. No guilt — just pick the critical actions and let "helpful" ones go this week.`, action: next ? `Start with ${nextLine}.` : 'Run your weekly review and reset the plan.' },
+    warning: { emoji: '🧭', message: `You're about ${Math.abs(Math.round(stats.paceDelta))}% behind the plan for week ${stats.currentWeek}. No guilt — just pick the critical actions and let "helpful" ones go this week.${runwayLine}`, action: next ? `Start with ${nextLine}.` : 'Run your weekly review and reset the plan.' },
     motivation: { emoji: '🚀', message: `${stats.completed} actions done — you're ahead of pace, ${name}. People who keep this rhythm for 3 more weeks almost always hit their first milestone early.`, action: next ? `Keep the streak: ${nextLine}.` : 'Look ahead to next week.' },
-    nudge: { emoji: '💪', message: `Good ${new Date(today).getHours() < 12 ? 'morning' : 'day'}, ${name}. Today's move: ${nextLine}. Week ${stats.currentWeek} is ${stats.weekPercent}% done — you're on track.`, action: next?.action || 'Weekly review' },
+    nudge: { emoji: '💪', message: `${lw ? `${lw}` : `Good ${new Date(today).getHours() < 12 ? 'morning' : 'day'}, ${name}. `}Today's move: ${nextLine}. Week ${stats.currentWeek} is ${stats.weekPercent}% done.${seed % 2 ? runwayLine : ''}`, action: next?.action || 'Weekly review' },
     tip: { emoji: '💡', message: pick(tips, seed), action: next ? `Apply it to ${nextLine}.` : 'Apply it this week.' },
     opportunity: { emoji: '✨', message: pick(opportunities, seed), action: 'Spend 20 minutes on it before lunch.' },
   };
@@ -436,63 +455,63 @@ export function generateDailyCoaching({ profile, roadmap, stats, today, history 
 
 const ISSUES = {
   'no-clients': {
-    label: 'Not getting clients or leads', impact: 1,
+    label: 'Not getting clients or leads', impact: 1, effects: { market: -12, financial: -7 }, why: 'Fewer clients than planned puts both demand and income at risk',
     causes: ['Your offer is too broad, so prospects can\'t see themselves in it', 'Outreach volume is too low to beat normal 5–10% reply rates', 'Little social proof yet'],
     solutions: ['Narrow to one niche and rewrite your pitch around a single painful problem', 'Double outreach to 20 personalised messages a week and follow up twice', 'Offer one discounted pilot in exchange for a testimonial'],
     actions: ['Rewrite your one-line offer for a single niche', 'Send 20 personalised pitches with a specific result in the first line', 'Offer a 2-week pilot to a warm contact for a testimonial', 'Follow up on every pitch older than 4 days'],
     pivots: ['Partner with an agency that resells your work', 'Go via referrals: ask 10 former colleagues for one intro each'],
   },
   'low-income': {
-    label: 'Income is below projection', impact: 1,
+    label: 'Income is below projection', impact: 1, effects: { financial: -10, market: -4 }, why: 'Income below projection stretches the funding plan',
     causes: ['Pricing is anchored to your old salary rate', 'Too many small one-off jobs', 'Time going to low-value tasks'],
     solutions: ['Raise prices 20% for every new client', 'Convert top clients to monthly retainers', 'Productise a repeatable deliverable'],
     actions: ['Raise your price on the next 3 proposals', 'Pitch a retainer to your best client', 'Package your most common job as a fixed-price offer', 'Drop or delegate your lowest-value task'],
     pivots: ['Add a higher-ticket advisory offer', 'Pick up a short-term contract to stabilise cash'],
   },
   'no-time': {
-    label: 'Not enough time', impact: 1,
+    label: 'Not enough time', impact: 1, effects: { timeline: -8 }, why: 'Less time each week slows every phase',
     causes: ['Actions are scheduled at low-energy times', 'Plan has too many "helpful" actions', 'Work or family demands increased'],
     solutions: ['Protect one fixed 60-minute block daily', 'Only do critical actions for 2 weeks', 'Negotiate one evening a week with family'],
     actions: ['Block a recurring 60-minute dream slot in your calendar', 'Cut this week to critical actions only', 'Have a 15-minute family conversation about support', 'Batch errands into one weekend slot'],
     pivots: ['Extend the timeline slightly instead of burning out', 'Delegate one recurring chore'],
   },
   'family-concerns': {
-    label: 'Family is worried or unsupportive', impact: 1,
+    label: 'Family is worried or unsupportive', impact: 1, effects: { family: -14 }, why: 'The family has to be on board for a change this big',
     causes: ['Family sees the risk but not the safety nets', 'They were not involved in planning', 'Specific fears (money, schools, stability) not addressed'],
     solutions: ['Show them the roadmap and the emergency fund', 'Invite them to choose part of the plan', 'Set a clear "go/no-go" checkpoint together'],
     actions: ['Hold a 30-minute family planning session with the roadmap', 'Write down each family member\'s top fear and the plan for it', 'Agree a go/no-go checkpoint date', 'Plan a small fun step together'],
     pivots: ['Run a trial (a scouting trip, a 3-month pilot) before the full move', 'Move the risky step later in the timeline'],
   },
   motivation: {
-    label: 'Losing motivation', impact: 0,
+    label: 'Losing motivation', impact: 0, effects: { timeline: -4 }, why: 'Low energy usually shows up as slipped weeks',
     causes: ['Goal feels far away', 'No visible wins recently', 'Doing it alone'],
     solutions: ['Shrink the next step to 15 minutes', 'Celebrate small wins visibly', 'Find an accountability partner'],
     actions: ['Do one 15-minute action today, nothing more', 'Write down 3 wins from the last month', 'Message a friend to be your weekly check-in', 'Re-read why you started'],
     pivots: ['Join a community of people chasing the same dream'],
   },
   'money-shortfall': {
-    label: 'Unexpected expense or savings shortfall', impact: 2,
+    label: 'Unexpected expense or savings shortfall', impact: 2, effects: { financial: -14 }, why: 'The dream fund is smaller than planned',
     causes: ['An unplanned expense hit the dream fund', 'Expenses crept up', 'Income delay'],
     solutions: ['Pause non-critical spending for 60 days', 'Add a short-term income boost', 'Extend the timeline instead of dipping into the emergency fund'],
     actions: ['List and pause 5 non-essential expenses', 'Pick up one quick freelance or overtime gig', 'Re-calculate the dream fund target', 'Move the big-spend step one month later'],
     pivots: ['Look for lower-cost alternatives for the expensive step'],
   },
   'skill-gap': {
-    label: 'Missing a key skill', impact: 1,
+    label: 'Missing a key skill', impact: 1, effects: { skills: -12 }, why: 'A missing skill has to be built before the next phase',
     causes: ['The dream needs a skill you have not built yet', 'Learning without applying'],
     solutions: ['Learn just enough and apply it in a real project immediately', 'Find a mentor to shortcut learning'],
     actions: ['Pick one 10-hour course module and finish it this week', 'Apply it in a mini-project', 'Book a session with a mentor on ADPList', 'Share what you built for feedback'],
     pivots: ['Partner with someone who has the skill'],
   },
   opportunity: {
-    label: 'A new opportunity appeared', impact: -1,
+    label: 'A new opportunity appeared', impact: -1, effects: { market: 6, financial: 4 }, why: 'A new opening strengthens demand and income',
     causes: ['Your effort is compounding — opportunities show up when you\'re visible'],
     solutions: ['Evaluate it against your dream: does it accelerate or distract?', 'If it accelerates, pull forward the related phase'],
     actions: ['Write a 5-line pros/cons of the opportunity', 'Ask for details on time, money and timeline', 'Decide within 48 hours', 'Update your plan to absorb it'],
     pivots: ['Negotiate a version of the opportunity that fits your plan'],
   },
   other: {
-    label: 'Something else', impact: 1,
+    label: 'Something else', impact: 1, effects: { timeline: -4 }, why: 'Circumstances changed from when the plan was made',
     causes: ['Circumstances changed from when the plan was made'],
     solutions: ['Isolate the single biggest blocker', 'Adjust the next 2 weeks, not the whole plan'],
     actions: ['Write the blocker in one sentence', 'List 3 ways around it', 'Pick one and do it this week', 'Review in 7 days'],
@@ -517,12 +536,47 @@ export function requestAdvice({ issue, details, roadmap, stats }) {
   };
 }
 
+/**
+ * Re-score feasibility after a setback, with the same weights as the first score. Only the components the
+ * setback touches move (plus timeline, by the months added), so the user can see exactly why it changed.
+ */
+export function rescoreFeasibility({ current, issue, timelineImpactMonths = 0 }) {
+  const it = ISSUES[issue] || ISSUES.other;
+  const before = Object.fromEntries(Object.keys(WEIGHTS).map((k) => [k, Number(current?.components?.[k]) || 70]));
+  const after = { ...before };
+  for (const [k, d] of Object.entries(it.effects || {})) after[k] = clamp(after[k] + d, 25, 98);
+  after.timeline = clamp(after.timeline - (timelineImpactMonths > 0 ? timelineImpactMonths * 4 : timelineImpactMonths * 3), 25, 98);
+  const from = Number.isFinite(current?.percent) ? current.percent : overallFeasibility(before);
+  const to = clamp(from + (overallFeasibility(after) - overallFeasibility(before)), 20, 99);
+  const changes = Object.keys(WEIGHTS).filter((k) => after[k] !== before[k]).map((k) => ({ key: k, label: COMPONENT_LABELS[k], from: before[k], to: after[k] }));
+  return { from, to, components: after, changes, reason: it.why || '' };
+}
+
+/** Phase lengths after a timeline change: the delay lands in the phase you're in, so later milestones move with it. */
+function shiftedPhaseLengths(roadmap, currentMonth, delta) {
+  const lengths = (roadmap.phases || []).map((ph) => ph.months.length);
+  if (!lengths.length || !delta) return lengths;
+  let pi = roadmap.phases.findIndex((ph) => ph.months.includes(currentMonth));
+  if (pi < 0) pi = lengths.length - 1;
+  if (delta > 0) { lengths[pi] += delta; return lengths; }
+  // Shorter plan: trim months that haven't started, latest phases first, never below one month or before today.
+  let left = -delta;
+  for (let i = lengths.length - 1; i >= pi && left > 0; i--) {
+    const started = i === pi ? currentMonth - roadmap.phases[i].months[0] + 1 : 0;
+    const spare = lengths[i] - Math.max(1, started);
+    const take = Math.min(spare, left);
+    lengths[i] -= take; left -= take;
+  }
+  return lengths;
+}
+
 /** Apply advice to a roadmap: re-plan from the current month onward, keep history. */
 export function adaptRoadmap({ roadmap, advice, profile, dream, feasibility, currentWeek }) {
   const currentMonth = Math.ceil(currentWeek / 4);
   const newTotal = advice.newTotalMonths ?? roadmap.totalMonths;
   const feas = { ...(feasibility || {}), archetype: roadmap.archetype, components: { ...(feasibility?.components || {}), timeline: { recommendedMonths: newTotal } } };
-  const fresh = generateRoadmap(profile, dream, feas);
+  const phaseLengths = shiftedPhaseLengths(roadmap, currentMonth, newTotal - roadmap.totalMonths);
+  const fresh = generateRoadmap(profile, dream, feas, { phaseLengths: phaseLengths.reduce((a, b) => a + b, 0) === newTotal ? phaseLengths : undefined });
 
   // Keep completed months exactly as they were.
   fresh.months = fresh.months.map((m) => (m.month < currentMonth ? roadmap.months.find((o) => o.month === m.month) || m : m));
@@ -548,9 +602,40 @@ export function adaptRoadmap({ roadmap, advice, profile, dream, feasibility, cur
       if (k >= advice.alternativeActions.length) break;
     }
   }
+  const f = advice.feasibility;
+  if (f) fresh.feasibilityNow = { percent: f.to, components: f.components };
+  else if (roadmap.feasibilityNow) fresh.feasibilityNow = roadmap.feasibilityNow;
   fresh.adaptations = [
     ...(roadmap.adaptations || []),
-    { date: new Date().toISOString(), issue: advice.issueLabel, summary: advice.solutions[0], timelineChange: newTotal - roadmap.totalMonths, fromMonths: roadmap.totalMonths, toMonths: newTotal },
+    {
+      date: new Date().toISOString(), issue: advice.issueLabel, summary: advice.solutions[0], timelineChange: newTotal - roadmap.totalMonths,
+      fromMonths: roadmap.totalMonths, toMonths: newTotal, fromWeek: currentWeek,
+      ...(f ? { feasibilityFrom: f.from, feasibilityTo: f.to } : {}),
+    },
   ];
   return fresh;
+}
+
+/**
+ * What applying the advice would change, computed before the user decides: milestones that move,
+ * weeks that stay locked, the feasibility re-score and the new actions. Deterministic, so it's instant.
+ */
+export function previewAdaptation({ roadmap, advice, profile, dream, feasibility, currentWeek }) {
+  const current = roadmap.feasibilityNow || { percent: feasibility?.feasibilityPercent, components: Object.fromEntries(Object.entries(feasibility?.components || {}).map(([k, v]) => [k, v.score])) };
+  const rescored = rescoreFeasibility({ current, issue: advice.issue, timelineImpactMonths: advice.timelineImpactMonths });
+  const next = adaptRoadmap({ roadmap, advice: { ...advice, feasibility: rescored }, profile, dream, feasibility, currentWeek });
+  const strip = (t) => (t || '').replace(/^Dream achieved:.*/, 'Dream achieved');
+  const before = roadmap.months.filter((m) => m.milestone && m.month >= Math.ceil(currentWeek / 4));
+  const after = next.months.filter((m) => m.milestone);
+  const milestoneShifts = before.map((m, i) => {
+    const match = after.find((x) => strip(x.milestone.title) === strip(m.milestone.title)) || after[after.length - before.length + i];
+    return match ? { title: strip(m.milestone.title) === 'Dream achieved' ? 'Dream achieved' : m.milestone.title, from: m.month, to: match.month } : null;
+  }).filter(Boolean);
+  return {
+    feasibility: rescored,
+    milestoneShifts,
+    lockedWeeks: Math.max(0, currentWeek - 1),
+    fromMonths: roadmap.totalMonths,
+    toMonths: next.totalMonths,
+  };
 }

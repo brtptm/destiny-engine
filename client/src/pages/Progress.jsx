@@ -35,6 +35,12 @@ export default function Progress() {
             <div><dt className="text-sm text-ink-3">New income</dt><dd className="num text-2xl">{inrShort(stats.incomeTotal)}</dd></div>
             <div><dt className="text-sm text-ink-3">Saved for dream</dt><dd className="num text-2xl">{inrShort(stats.savingsTotal)}</dd></div>
           </dl>
+          {stats.runway && (
+            <p className="mt-4 text-sm text-ink-2">
+              Runway: <span className="num text-ink">{stats.runway.monthsNoIncome} months</span> on {inr(stats.runway.liquid)} with no income
+              {stats.runway.monthsWithDreamIncome == null ? ' — and your dream income already covers your costs.' : <>, <span className="num text-ink">{stats.runway.monthsWithDreamIncome > 36 ? 'over 3 years' : `${stats.runway.monthsWithDreamIncome} months`}</span> counting the {inr(stats.runway.dreamIncome30)} you earned on the side in the last 30 days.</>}
+            </p>
+          )}
         </div>
       </section>
 

@@ -29,7 +29,7 @@ Pitch deck and demo script: [`demo/`](demo/PITCH.md).
 pnpm build && pnpm start   # serves the built client + API on :4000
 ```
 
-`pnpm seed` resets the demo account.
+`pnpm seed` resets the demo account. `pnpm --filter ./server test` runs the server tests (adaptive re-planning, feasibility re-score, runway).
 
 ## How the AI works
 
@@ -44,6 +44,10 @@ Every AI function (`server/src/ai/index.js`) first computes a **grounded baselin
 | `generateDailyCoaching` | Daily nudge / tip / warning / celebration from live progress |
 | `requestAdvice` + `adaptRoadmap` | Diagnoses an obstacle, proposes actions and a timeline change, re-plans the remaining months |
 
+**Re-planning keeps the story straight.** When a setback adds (or saves) months, the change lands in the phase you're in, so every later milestone moves with it ("moving day: month 6 → 7"). Months and weeks you've completed are never touched. Feasibility is re-scored with the same weights as the first score, moving only the components the setback affects, and the user sees all of it before choosing **Apply this plan** or **Keep my original plan**.
+
+**Runway** is shown two ways on Today and Progress: how long savings last with no income, and how long counting the last 30 days of dream income, so logging income visibly moves it.
+
 Requests use streaming, `output_config.effort` (low for coaching, medium for roadmaps), server-side refusal fallback, an in-memory cache for repeat analyses, and a per-minute rate limit on AI routes.
 
 ## Features → where they live
@@ -54,10 +58,10 @@ Requests use streaming, `output_config.effort` (low for coaching, medium for roa
 | Dream input + 50 templates | `pages/DreamInput.jsx` | `POST /api/dreams/create`, `GET/PUT/DELETE /api/dreams/:id`, `GET /api/templates/dreams`, `POST /api/templates/use-template` |
 | Feasibility report | `pages/Feasibility.jsx` | stored on the dream |
 | Roadmap (constellation timeline, weekly checklists, projections, risks, resources) | `pages/Roadmap.jsx`, `components/Constellation.jsx` | `POST /api/roadmap/generate`, `GET /api/roadmap/:id`, `POST /api/roadmap/:id/months/:m/plan` |
-| Daily check-in | `pages/Today.jsx` | `POST /api/progress/checklist-complete`, `POST /api/progress/complete-week` |
+| Daily check-in (runway, milestone countdowns, one-tap "stuck?" help) | `pages/Today.jsx` | `POST /api/progress/checklist-complete`, `POST /api/progress/complete-week` |
 | Progress tracking (income/savings vs plan, consistency, milestones) | `pages/Progress.jsx` | `POST /api/progress/update`, `GET /api/progress/:userId`, `GET /api/progress/statistics` |
 | Coaching feed + feedback/archive | `pages/Coach.jsx` | `GET /api/coaching/daily-message`, `GET /api/coaching/history`, `POST /api/coaching/feedback` |
-| Adaptive planning ("Get help") | `pages/Coach.jsx` | `POST /api/coaching/request-advice` → `PUT /api/roadmap/:id` (or `POST /api/roadmap/regenerate`) |
+| Adaptive planning ("Get help"): diagnosis, then a preview of exactly what changes (timeline, feasibility re-score, milestones that move, locked weeks) before you apply or keep the original | `pages/Coach.jsx` | `POST /api/coaching/request-advice` → `PUT /api/roadmap/:id` (or `POST /api/roadmap/regenerate`) |
 | Settings, theme, data export, delete account | `pages/Settings.jsx` | `PUT /api/auth/settings`, `GET /api/auth/export`, `DELETE /api/auth/account` |
 | Auth | `pages/Auth.jsx` | `POST /api/auth/register|login|logout|demo`, `GET /api/auth/profile` |
 

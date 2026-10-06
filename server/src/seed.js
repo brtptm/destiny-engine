@@ -51,12 +51,11 @@ export async function ensureDemoUser({ reset = false } = {}) {
   const day = (n) => new Date(started.getTime() + n * 86400000).toISOString().slice(0, 10);
   const progress = {
     completedActions,
+    // Two clients so far, about ₹35K in the last 30 days: real progress, with runway left to grow live in the demo.
     incomeLog: [
       { date: day(9), amount: 12000, source: 'Upwork trial project', note: 'First 5★ review' },
-      { date: day(16), amount: 18000, source: 'Retainer — D2C skincare brand', note: '' },
-      { date: day(23), amount: 22000, source: 'Social media audit', note: '' },
-      { date: day(30), amount: 18000, source: 'Retainer — D2C skincare brand', note: '' },
-      { date: day(34), amount: 26000, source: 'Ed-tech launch campaign', note: '' },
+      { date: day(16), amount: 15000, source: 'Retainer — D2C skincare brand', note: 'Client 2' },
+      { date: day(33), amount: 10000, source: 'Social media audit — D2C skincare brand', note: '' },
     ],
     savingsLog: [
       { date: day(7), amount: 15000, note: 'Move fund' }, { date: day(14), amount: 20000, note: 'Move fund' },

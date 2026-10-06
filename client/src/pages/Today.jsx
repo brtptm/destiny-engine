@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { FiRefreshCw, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
+import { FiRefreshCw, FiTrendingUp, FiTrendingDown, FiLifeBuoy } from 'react-icons/fi';
 import { api, useDashboard } from '../lib/api.js';
 import { useToggleAction, useCompleteWeek, todayIndex } from '../lib/hooks.js';
 import { inrShort, monthLabel, plural } from '../lib/format.js';
 import { ActionChecklist, CoachingMessage, ProgressBar, Spinner, ErrorNote, Celebration, MilestoneCard } from '../components/ui.jsx';
+
+// The setbacks people hit most, one tap from the daily screen (keys match the server's issue types).
+const STUCK = [['no-clients', 'Not getting clients'], ['low-income', 'Income below plan'], ['family-concerns', 'Family is worried'], ['no-time', 'No time this week']];
 
 function greeting() {
   const h = new Date().getHours();
@@ -104,22 +107,46 @@ export default function Today() {
             <p className="text-sm mt-3" style={{ color: stats.onTrack ? 'var(--sea)' : 'var(--rose)' }}>
               {stats.onTrack ? (stats.paceDelta > 5 ? 'Ahead of schedule' : 'On track') : `About ${Math.abs(stats.paceDelta)}% behind plan`}
             </p>
+            <p className="text-sm text-ink-3 mt-1">Week {stats.currentWeek} of {stats.totalWeeks} · feasibility {stats.feasibility ?? data.dream?.feasibility?.feasibilityPercent}%</p>
           </div>
           <div className="panel p-5">
             <div className="text-sm text-ink-3">New income this month</div>
             <div className="num text-2xl mt-1">{inrShort(stats.incomeThisMonth)}</div>
             <p className="text-sm mt-1 flex items-center gap-1.5" style={{ color: incomeDelta >= 0 ? 'var(--sea)' : 'var(--ink-3)' }}>
               {incomeDelta >= 0 ? <FiTrendingUp /> : <FiTrendingDown />}
-              {incomeDelta >= 0 ? `${inrShort(incomeDelta)} above plan` : `${inrShort(-incomeDelta)} to go this month`}
+              {incomeDelta === 0 ? 'Right on plan' : incomeDelta > 0 ? `${inrShort(incomeDelta)} above plan` : `${inrShort(-incomeDelta)} to go this month`}
             </p>
             <Link to="/progress#log" className="text-sm text-gold-text font-semibold mt-3 inline-block">Log income or savings</Link>
           </div>
+          {stats.runway && (
+            <div className="panel p-5">
+              <div className="text-sm text-ink-3">Runway if you went all-in today</div>
+              <div className="num text-2xl mt-1">{stats.runway.monthsNoIncome} months</div>
+              <p className="text-sm text-ink-3 mt-1">{inrShort(stats.runway.liquid)} saved, with no income at all</p>
+              <p className="text-sm mt-2" style={{ color: 'var(--sea)' }}>
+                {stats.runway.monthsWithDreamIncome == null
+                  ? 'Your dream income already covers your monthly costs'
+                  : `${stats.runway.monthsWithDreamIncome > 36 ? 'Over 3 years' : `${stats.runway.monthsWithDreamIncome} months`} counting your side income`}
+              </p>
+            </div>
+          )}
           {stats.upcomingMilestones.length > 0 && (
             <div className="panel p-5">
               <div className="text-sm text-ink-3">Coming up</div>
-              {stats.upcomingMilestones.slice(0, 2).map((m) => <MilestoneCard key={m.month} milestone={m} startLabel={monthLabel(roadmap.startDate, m.month)} />)}
+              {stats.upcomingMilestones.slice(0, 2).map((m) => {
+                const weeksTo = Math.max(0, m.month * 4 - stats.currentWeek + 1);
+                return <MilestoneCard key={m.month} milestone={m} startLabel={`${weeksTo ? `in ${plural(weeksTo, 'week')} · ` : ''}${monthLabel(roadmap.startDate, m.month)}`} />;
+              })}
             </div>
           )}
+          <div className="panel p-5">
+            <div className="text-sm text-ink-3 flex items-center gap-2"><FiLifeBuoy /> Stuck on something?</div>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {STUCK.map(([k, label]) => <Link key={k} to={`/coach?help=1&issue=${k}`} className="chip">{label}</Link>)}
+              <Link to="/coach?help=1" className="chip">Something else</Link>
+            </div>
+            <p className="text-xs text-ink-3 mt-3">Your coach diagnoses it and shows exactly what a re-plan would change before you accept.</p>
+          </div>
           <button className="text-sm text-ink-3 hover:text-ink inline-flex items-center gap-2 justify-self-start"
             onClick={async () => { const r = await api.dailyMessage(true).catch(() => null); if (r) qc.setQueryData(['coaching', 'daily'], r); qc.invalidateQueries({ queryKey: ['coaching', 'history'] }); }}>
             <FiRefreshCw /> New message from your coach

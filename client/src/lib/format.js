@@ -21,7 +21,10 @@ export const confidenceLabel = { low: 'Low confidence', medium: 'Medium confiden
 
 export function addMonths(dateStr, months) {
   const d = new Date(dateStr);
+  const day = d.getDate();
+  d.setDate(1); // a start on the 31st must not roll "31 Feb" over into March
   d.setMonth(d.getMonth() + months);
+  d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
   return d;
 }
 export const monthLabel = (startDate, m) => addMonths(startDate, m - 1).toLocaleDateString('en-IN', { month: 'short' });
